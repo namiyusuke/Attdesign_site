@@ -1,0 +1,48 @@
+---
+import { SITE, SNS } from "../../config";
+import logoPrimary from "@assets/img/logoprimary.png";
+import logoSecondary from "@assets/img/logoSecondary.png";
+---
+
+<div class="bottomCanvas">
+  <canvas id="bottomCanvas" width="800" height="300"></canvas>
+  <span class="bottom__wrap">
+    <span class="bottom__purple"></span>
+    <span class="bottom__green"></span>
+    <span class="bottom__red"></span>
+  </span>
+</div>
+<div class="footer__bg">
+  <footer class="footer">
+  </footer>
+</div>
+<style>
+  .bottomCanvas {
+    position: relative;
+    height: 200px;
+    border-top: #333 solid 1px;
+  }
+  #bottomCanvas {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 200px;
+  }
+  @media (width >= 768px) {
+    .bottomCanvas {
+      position: relative;
+      height: 355px;
+      border-top: #333 solid 1px;
+    }
+    #bottomCanvas {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      z-index: -1;
+      width: 100%;
+      height: 355px;
+    }
+  }
+</style>

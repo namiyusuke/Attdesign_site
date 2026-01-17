@@ -1,0 +1,20 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { client, type Photo } from '../../lib/microcms';
+
+export async function getStaticPaths() {
+  const response = await client.getList<Photo>({ endpoint: 'photo' });
+  return response.contents.map((photo) => ({
+    params: { photoId: photo.id },
+    props: { photo },
+  }));
+}
+
+const { photo } = Astro.props;
+---
+
+<Layout>
+  <main>
+    <img src={photo.image.url} alt="" />
+  </main>
+</Layout>

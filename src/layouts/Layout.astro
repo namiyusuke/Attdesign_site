@@ -1,22 +1,113 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+// ====================================
+// Import
+// ====================================
+// Config
+import { SITE, COMPANY, SNS } from "../config";
+import "@assets/css/base.reset.css";
+// Component
+import GlobalHeader from "../components/global/GlobalHeader.astro";
+import GlobalFooter from "../components/global/GlobalFooter.astro";
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ja" data-script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta property="og:url" content={Astro.url} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${SITE.url}/ogp.webp`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={SNS.twitter} />
+    <link rel="apple-touch-icon" href="/apple_touch_icon.webp" />
+    <meta name="format-detection" content="telephone=no, email=no, address=no" />
+    <link rel="canonical" href={Astro.url} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Zen+Kaku+Gothic+New&family=Zen+Old+Mincho&display=swap"
+      rel="stylesheet"
+    />
+    <!-- <link rel="icon" type="image/svg+xml" href={`${SITE.base}favicon.svg`} /> -->
+    <link rel="shortcut icon" href={`${SITE.base}favicon.webp`} />
+    <link rel="apple-touch-icon" sizes="180x180" href={`${SITE.base}apple-touch-icon.webp`} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="p-transition js-transition"></div>
+    <div id="swup" class="transition-main">
+      <GlobalHeader />
+      <slot />
+      <GlobalFooter />
+    </div>
+    <style is:global>
+      :root {
+      }
+      .is-drawerActive {
+        overflow: hidden;
+      }
+      html.is-changing .transition-main {
+        visibility: hidden;
+        opacity: 0;
+        transition: all 0.5s ease-out;
+      }
+
+      html.is-rendering .transition-main {
+        visibility: visible;
+        opacity: 1;
+        transition: all 0.5s ease-out;
+      }
+      .p-transition {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        width: 100%;
+        height: 100dvh;
+        visibility: hidden;
+        will-change: transform;
+      }
+      .p-transition.-is-changing {
+        visibility: visible;
+      }
+
+      .p-transition.-is-animating:before {
+        transition: transform 1.5s cubic-bezier(0.39, 0.575, 0.565, 1);
+        transform: translate3d(-66.66%, 0, 0);
+      }
+
+      .p-transition.-is-rendering:before {
+        transition: transform 1.5s cubic-bezier(0.39, 0.575, 0.565, 1);
+        transition-delay: 0.1s;
+        transform: translate3d(-134%, 0, 0);
+      }
+
+      .p-transition:before {
+        position: absolute;
+        top: 0;
+        left: 0%;
+        width: 300%;
+        height: 100%;
+        content: "";
+        background: linear-gradient(to right, #fff0, #fff, #fff, #fff0);
+      }
+    </style>
+  </body>
+</html>
+<script>
+	import swupFunc from "@assets/js/libs/Swup"
+	swupFunc();
+</script>

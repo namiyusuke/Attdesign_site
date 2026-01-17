@@ -1,11 +1,52 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import { client, type Photo } from '../lib/microcms';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// microCMSからphotoデータを取得
+const response = await client.getList<Photo>({
+  endpoint: 'photo',
+  queries: { limit: 10 },
+});
+
+const photos = response.contents;
+
+// WebGLに渡すデータ（画像URLとリンク先）
+const photoData = photos.map(p => ({
+  imageUrl: p.image.url,
+  linkUrl: `/photo/${p.id}`,
+}));
 ---
 
 <Layout>
-	<Welcome />
+	<canvas id="webgl"></canvas>
 </Layout>
+
+<script is:inline define:vars={{ photoData }}>
+  window.__PHOTO_DATA__ = photoData;
+</script>
+<script>
+	import { WebGL } from "@assets/js/libs/WebGL";
+
+  let webglInstance: WebGL | null = null;
+
+  function initWebGL() {
+    const canvas = document.getElementById("webgl") as HTMLCanvasElement;
+    if (canvas) {
+      // 既存のインスタンスがあれば破棄
+      if (webglInstance) {
+        webglInstance.destroy();
+      }
+      webglInstance = new WebGL(canvas);
+    }
+  }
+
+  // 初回読み込み時
+  initWebGL();
+
+  // swupでページ遷移後に再初期化
+  if (window.swup) {
+    window.swup.hooks.on('page:view', () => {
+      initWebGL();
+    });
+  }
+</script>
