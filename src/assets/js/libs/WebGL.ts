@@ -44,6 +44,15 @@ export class WebGL {
   private gapSmoothing = 0.1;
   private depthSmoothing = 0.08;
 
+  // クリック時のズームアニメーション用
+  private isZooming = false;
+  private zoomProgress = 0;
+  private zoomSpeed = 0.02;
+  private targetTileCenter = { x: 0, y: 0 }; // クリックしたタイルの中心座標
+  private clickScreenPos = { x: 0, y: 0 }; // クリックした画面上の位置（0〜1）
+  private targetUrl: string | null = null;
+  private currentZoom = 1;
+
   // イベントリスナーのバインド
   private boundOnResize: () => void;
   private boundOnMouseDown: (e: MouseEvent) => void;
@@ -366,6 +375,9 @@ export class WebGL {
   }
 
   private onClick(e: MouseEvent): void {
+    // ズームアニメーション中はクリックを無視
+    if (this.isZooming) return;
+
     // クリック位置を0〜1のUV座標に変換
     const rect = this.canvas.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
@@ -412,57 +424,103 @@ export class WebGL {
     const calcValue = tileIndexX + tileIndexY * 5;
     const imageIndex = ((calcValue % 10) + 10) % 10;
 
-    // デバッグ情報を表示
-    console.log("=== クリック情報 ===");
-    console.log("クリック座標(画面):", e.clientX.toFixed(0), e.clientY.toFixed(0));
-    console.log("UV座標:", x.toFixed(4), y.toFixed(4));
-    console.log("currentDepth:", this.currentDepth.toFixed(4));
-    console.log("奥行きワープ後:", warpedX.toFixed(4), warpedY.toFixed(4));
-    console.log("repeat:", repeatX.toFixed(2), repeatY.toFixed(2));
-    console.log("offset:", this.offset.x.toFixed(4), this.offset.y.toFixed(4));
-    console.log("最終UV:", uv_x.toFixed(4), uv_y.toFixed(4));
-    console.log("タイル位置:", tileIndexX, tileIndexY);
-    console.log("計算（X+Y*5）:", `${tileIndexX} + ${tileIndexY} * 5 = ${calcValue}`);
-    console.log("最終:", `((${calcValue} % 10) + 10) % 10 = ${imageIndex}`);
-    console.log("画像:", this.imagePaths[imageIndex]);
-    console.log("URL:", this.imageURLs[imageIndex]);
-    console.log("==================");
+    // 遷移先URLを保存
+    if (!this.imageURLs[imageIndex]) return;
+    this.targetUrl = this.imageURLs[imageIndex];
 
-    // 対応するURLに飛ぶ（swup経由でアニメーション遷移）
-    if (this.imageURLs[imageIndex]) {
-      if (window.swup) {
-        window.swup.navigate(this.imageURLs[imageIndex]);
-      } else {
-        window.location.href = this.imageURLs[imageIndex];
-      }
-    }
+    // クリックしたタイルの中心座標を保存
+    this.targetTileCenter.x = tileIndexX + 0.5;
+    this.targetTileCenter.y = tileIndexY + 0.5;
+
+    // クリックした画面上の位置を保存（0〜1、Y軸は上が1）
+    this.clickScreenPos.x = x;
+    this.clickScreenPos.y = y;
+
+    // ズームアニメーション開始
+    this.isZooming = true;
+    this.zoomProgress = 0;
+    this.currentZoom = 1;
+    this.velocity.x = 0;
+    this.velocity.y = 0;
+
+    console.log("=== ズームアニメーション開始 ===");
+    console.log("タイル中心:", this.targetTileCenter);
+    console.log("クリック画面位置:", this.clickScreenPos);
+    console.log("URL:", this.targetUrl);
   }
 
   private animate(): void {
     requestAnimationFrame(this.animate.bind(this));
 
-    this.offset.x += 0.003;
+    // ズームアニメーション中
+    if (this.isZooming) {
+      this.zoomProgress += this.zoomSpeed;
 
-    // 慣性を適用
-    if (!this.isDragging) {
-      this.offset.x += this.velocity.x;
-      this.offset.y += this.velocity.y;
-      this.velocity.x *= this.friction;
-      this.velocity.y *= this.friction;
+      // イージング関数（ease-out）
+      const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+      const t = easeOut(Math.min(this.zoomProgress, 1));
+
+      // ズーム（repeatを減らすことで拡大効果）
+      this.currentZoom = 1 + t * 2; // 1 → 3 にズーム
+      const screenAspect = window.innerWidth / window.innerHeight;
+      const zoomedRepeat = baseRepeat / this.currentZoom;
+
+      let repeatX: number, repeatY: number;
+      if (screenAspect > 1) {
+        repeatX = zoomedRepeat * screenAspect;
+        repeatY = zoomedRepeat;
+      } else {
+        repeatX = zoomedRepeat;
+        repeatY = zoomedRepeat / screenAspect;
+      }
+      this.material.uniforms.u_repeat.value.set(repeatX, repeatY);
+
+      // 画面上の位置を補間（クリック位置 → 画面中央）
+      const currentScreenX = this.clickScreenPos.x + (0.5 - this.clickScreenPos.x) * t;
+      const currentScreenY = this.clickScreenPos.y + (0.5 - this.clickScreenPos.y) * t;
+
+      // タイルの中心がその画面位置に来るようにオフセットを計算
+      // UV座標 = screenPos * repeat + offset → offset = tileCenter - screenPos * repeat
+      this.offset.x = this.targetTileCenter.x - currentScreenX * repeatX;
+      this.offset.y = this.targetTileCenter.y - currentScreenY * repeatY;
+
+      // アニメーション完了
+      if (this.zoomProgress >= 1) {
+        this.isZooming = false;
+        // ページ遷移
+        if (this.targetUrl) {
+          if (window.swup) {
+            window.swup.navigate(this.targetUrl);
+          } else {
+            window.location.href = this.targetUrl;
+          }
+        }
+      }
+    } else {
+      // 通常時の処理
+      this.offset.x += 0.003;
+
+      // 慣性を適用
+      if (!this.isDragging) {
+        this.offset.x += this.velocity.x;
+        this.offset.y += this.velocity.y;
+        this.velocity.x *= this.friction;
+        this.velocity.y *= this.friction;
+      }
+
+      // 速度の大きさを計算
+      const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
+
+      // 目標ギャップ値
+      const targetGap = Math.min(speed * 20, 1.0);
+
+      // 目標奥行き値
+      const targetDepth = Math.min(speed * 15, 1.0);
+
+      // 滑らかに補間
+      this.currentGap += (targetGap - this.currentGap) * this.gapSmoothing;
+      this.currentDepth += (targetDepth - this.currentDepth) * this.depthSmoothing;
     }
-
-    // 速度の大きさを計算
-    const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
-
-    // 目標ギャップ値
-    const targetGap = Math.min(speed * 20, 1.0);
-
-    // 目標奥行き値
-    const targetDepth = Math.min(speed * 15, 1.0);
-
-    // 滑らかに補間
-    this.currentGap += (targetGap - this.currentGap) * this.gapSmoothing;
-    this.currentDepth += (targetDepth - this.currentDepth) * this.depthSmoothing;
 
     // シェーダーのuniformを更新
     this.material.uniforms.u_offset.value.set(this.offset.x, this.offset.y);
