@@ -487,7 +487,7 @@ export class WebGL {
         img.classList.remove('-is-animating');
         this.isAnimating = false;
       }, 100);
-    }, 600);
+    }, 2000);
   }
 
   private animate(): void {
