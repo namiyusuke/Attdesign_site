@@ -44,14 +44,8 @@ export class WebGL {
   private gapSmoothing = 0.1;
   private depthSmoothing = 0.08;
 
-  // クリック時のズームアニメーション用
-  private isZooming = false;
-  private zoomProgress = 0;
-  private zoomSpeed = 0.02;
-  private targetTileCenter = { x: 0, y: 0 }; // クリックしたタイルの中心座標
-  private clickScreenPos = { x: 0, y: 0 }; // クリックした画面上の位置（0〜1）
-  private targetUrl: string | null = null;
-  private currentZoom = 1;
+  // クリック時のアニメーション用
+  private isAnimating = false;
 
   // イベントリスナーのバインド
   private boundOnResize: () => void;
@@ -375,8 +369,8 @@ export class WebGL {
   }
 
   private onClick(e: MouseEvent): void {
-    // ズームアニメーション中はクリックを無視
-    if (this.isZooming) return;
+    // アニメーション中はクリックを無視
+    if (this.isAnimating) return;
 
     // クリック位置を0〜1のUV座標に変換
     const rect = this.canvas.getBoundingClientRect();
@@ -389,7 +383,7 @@ export class WebGL {
     const distFromCenter = Math.sqrt(centered_x * centered_x + centered_y * centered_y);
 
     // 奥行きワープを適用（シェーダーと同じ）
-    const depthStrength = 0; // this.currentDepth * 0.3;
+    const depthStrength = 0;
     const warpFactor = 1.0 - depthStrength * distFromCenter * 2.0;
     const warpedX = centered_x * warpFactor + 0.5;
     const warpedY = centered_y * warpFactor + 0.5;
@@ -424,80 +418,83 @@ export class WebGL {
     const calcValue = tileIndexX + tileIndexY * 5;
     const imageIndex = ((calcValue % 10) + 10) % 10;
 
-    // 遷移先URLを保存
-    if (!this.imageURLs[imageIndex]) return;
-    this.targetUrl = this.imageURLs[imageIndex];
+    // 遷移先URLとimage URLを取得
+    const targetUrl = this.imageURLs[imageIndex];
+    const imageUrl = this.imagePaths[imageIndex];
+    if (!targetUrl || !imageUrl) return;
 
-    // クリックしたタイルの中心座標を保存
-    this.targetTileCenter.x = tileIndexX + 0.5;
-    this.targetTileCenter.y = tileIndexY + 0.5;
+    // クリック位置でのタイルの画面上の矩形を計算
+    const tileLeft = (tileIndexX - this.offset.x) / repeatX;
+    const tileRight = (tileIndexX + 1 - this.offset.x) / repeatX;
+    const tileBottom = (tileIndexY - this.offset.y) / repeatY;
+    const tileTop = (tileIndexY + 1 - this.offset.y) / repeatY;
 
-    // クリックした画面上の位置を保存（0〜1、Y軸は上が1）
-    this.clickScreenPos.x = x;
-    this.clickScreenPos.y = y;
+    // 画面座標に変換（px）
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const startLeft = tileLeft * screenWidth;
+    const startTop = (1 - tileTop) * screenHeight; // Y軸反転
+    const startWidth = (tileRight - tileLeft) * screenWidth;
+    const startHeight = (tileTop - tileBottom) * screenHeight;
 
-    // ズームアニメーション開始
-    this.isZooming = true;
-    this.zoomProgress = 0;
-    this.currentZoom = 1;
+    // DOMアニメーション開始
+    this.isAnimating = true;
     this.velocity.x = 0;
     this.velocity.y = 0;
 
-    console.log("=== ズームアニメーション開始 ===");
-    console.log("タイル中心:", this.targetTileCenter);
-    console.log("クリック画面位置:", this.clickScreenPos);
-    console.log("URL:", this.targetUrl);
+    // オーバーレイ要素を取得
+    const overlay = document.getElementById('photo-overlay');
+    const img = document.getElementById('photo-overlay-img') as HTMLImageElement;
+    if (!overlay || !img) return;
+
+    // 画像を設定し、初期位置に配置
+    img.src = imageUrl;
+    img.style.left = `${startLeft}px`;
+    img.style.top = `${startTop}px`;
+    img.style.width = `${startWidth}px`;
+    img.style.height = `${startHeight}px`;
+    img.classList.remove('-is-animating');
+
+    // オーバーレイを表示
+    overlay.classList.add('-is-active');
+
+    // 次のフレームでアニメーション開始
+    requestAnimationFrame(() => {
+      img.classList.add('-is-animating');
+
+      // 画面中央に拡大
+      const finalWidth = Math.min(screenWidth * 0.9, screenHeight * 0.9);
+      const finalHeight = finalWidth;
+      const finalLeft = (screenWidth - finalWidth) / 2;
+      const finalTop = (screenHeight - finalHeight) / 2;
+
+      img.style.left = `${finalLeft}px`;
+      img.style.top = `${finalTop}px`;
+      img.style.width = `${finalWidth}px`;
+      img.style.height = `${finalHeight}px`;
+    });
+
+    // アニメーション完了後にページ遷移
+    setTimeout(() => {
+      if (window.swup) {
+        window.swup.navigate(targetUrl);
+      } else {
+        window.location.href = targetUrl;
+      }
+      // クリーンアップ
+      setTimeout(() => {
+        overlay.classList.remove('-is-active');
+        img.classList.remove('-is-animating');
+        this.isAnimating = false;
+      }, 100);
+    }, 600);
   }
 
   private animate(): void {
     requestAnimationFrame(this.animate.bind(this));
 
-    // ズームアニメーション中
-    if (this.isZooming) {
-      this.zoomProgress += this.zoomSpeed;
-
-      // イージング関数（ease-out）
-      const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-      const t = easeOut(Math.min(this.zoomProgress, 1));
-
-      // ズーム（repeatを減らすことで拡大効果）
-      this.currentZoom = 1 + t * 2; // 1 → 3 にズーム
-      const screenAspect = window.innerWidth / window.innerHeight;
-      const zoomedRepeat = baseRepeat / this.currentZoom;
-
-      let repeatX: number, repeatY: number;
-      if (screenAspect > 1) {
-        repeatX = zoomedRepeat * screenAspect;
-        repeatY = zoomedRepeat;
-      } else {
-        repeatX = zoomedRepeat;
-        repeatY = zoomedRepeat / screenAspect;
-      }
-      this.material.uniforms.u_repeat.value.set(repeatX, repeatY);
-
-      // 画面上の位置を補間（クリック位置 → 画面中央）
-      const currentScreenX = this.clickScreenPos.x + (0.5 - this.clickScreenPos.x) * t;
-      const currentScreenY = this.clickScreenPos.y + (0.5 - this.clickScreenPos.y) * t;
-
-      // タイルの中心がその画面位置に来るようにオフセットを計算
-      // UV座標 = screenPos * repeat + offset → offset = tileCenter - screenPos * repeat
-      this.offset.x = this.targetTileCenter.x - currentScreenX * repeatX;
-      this.offset.y = this.targetTileCenter.y - currentScreenY * repeatY;
-
-      // アニメーション完了
-      if (this.zoomProgress >= 1) {
-        this.isZooming = false;
-        // ページ遷移
-        if (this.targetUrl) {
-          if (window.swup) {
-            window.swup.navigate(this.targetUrl);
-          } else {
-            window.location.href = this.targetUrl;
-          }
-        }
-      }
-    } else {
-      // 通常時の処理
+    // アニメーション中はWebGLの動きを止める
+    if (!this.isAnimating) {
       this.offset.x += 0.003;
 
       // 慣性を適用

@@ -48,6 +48,10 @@ const { title, description } = Astro.props;
   </head>
   <body>
     <div class="p-transition js-transition"></div>
+    <!-- 写真フライアウト用オーバーレイ -->
+    <div id="photo-overlay" class="photo-overlay">
+      <img id="photo-overlay-img" class="photo-overlay__img" src="" alt="" />
+    </div>
     <div id="swup" class="transition-main">
       <GlobalHeader />
       <slot />
@@ -103,6 +107,29 @@ const { title, description } = Astro.props;
         height: 100%;
         content: "";
         background: linear-gradient(to right, #fff0, #fff, #fff, #fff0);
+      }
+
+      /* 写真フライアウト用オーバーレイ */
+      .photo-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 50;
+        pointer-events: none;
+        opacity: 0;
+      }
+      .photo-overlay.-is-active {
+        opacity: 1;
+      }
+      .photo-overlay__img {
+        position: absolute;
+        object-fit: cover;
+        will-change: transform;
+      }
+      .photo-overlay__img.-is-animating {
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       }
     </style>
   </body>
