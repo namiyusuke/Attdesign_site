@@ -2,6 +2,28 @@ import Swup from "swup";
 import SwupJsPlugin from "@swup/js-plugin";
 import SwupHeadPlugin from "@swup/head-plugin";
 import SwupScriptsPlugin from "@swup/scripts-plugin";
+import { BulgeImage } from "./BulgeImage";
+
+// グローバルにインスタンスを保持
+let bulgeInstance = null;
+
+function initBulgeImage() {
+  requestAnimationFrame(() => {
+    const container = document.getElementById("bulge-container");
+    if (!container) return;
+
+    const imageUrl = container.dataset.imageUrl;
+    if (!imageUrl) return;
+
+    // 既存のインスタンスがあれば破棄
+    if (bulgeInstance) {
+      bulgeInstance.destroy();
+      bulgeInstance = null;
+    }
+
+    bulgeInstance = new BulgeImage(container, imageUrl);
+  });
+}
 
 export default function swupFunc() {
   const swup = new Swup({
@@ -39,6 +61,14 @@ export default function swupFunc() {
       }),
     ],
   });
+
+  // ページ遷移完了後にBulgeImage初期化
+  swup.hooks.on("page:view", () => {
+    initBulgeImage();
+  });
+
+  // 初回ロード時もチェック
+  initBulgeImage();
 
   // グローバルに公開（WebGLなどからナビゲーションに使用）
   window.swup = swup;

@@ -14,7 +14,28 @@ const { photo } = Astro.props;
 ---
 
 <Layout>
-  <main>
-    <img src={photo.image.url} alt="" />
+  <main class="photo-detail">
+    <div class="photo-detail__image" id="bulge-container" data-image-url={photo.image.url}>
+      <!-- WebGLでレンダリングされる -->
+    </div>
   </main>
 </Layout>
+
+<style>
+  .photo-detail {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+    box-sizing: border-box;
+  }
+
+  .photo-detail__image {
+    width: 90vmin;
+    height: 90vmin;
+    max-width: 800px;
+    max-height: 800px;
+  }
+</style>
+
