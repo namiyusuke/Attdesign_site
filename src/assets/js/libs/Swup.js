@@ -16,10 +16,21 @@ export default function swupFunc() {
             from: "(.*)",
             to: "(.*)",
             in: async () => {
+              // シャッターアニメーション後はシャッターをリセット
+              const shutterOverlay = document.getElementById("shutter-overlay");
+              if (shutterOverlay && shutterOverlay.classList.contains("-is-active")) {
+                shutterOverlay.classList.remove("-is-active");
+                shutterOverlay.style.opacity = "";
+              }
               const container = document.querySelector("#swup");
               await container.animate([{ opacity: 0 }, { opacity: 1 }], 250).finished;
             },
             out: async () => {
+              // シャッターアニメーション中はoutアニメーションをスキップ
+              const shutterOverlay = document.getElementById("shutter-overlay");
+              if (shutterOverlay && shutterOverlay.classList.contains("-is-active")) {
+                return;
+              }
               const container = document.querySelector("#swup");
               await container.animate([{ opacity: 1 }, { opacity: 0 }], 250).finished;
             },

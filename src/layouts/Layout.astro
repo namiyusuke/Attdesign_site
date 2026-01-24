@@ -52,6 +52,17 @@ const { title, description } = Astro.props;
     <div id="photo-overlay" class="photo-overlay">
       <img id="photo-overlay-img" class="photo-overlay__img" src="" alt="" />
     </div>
+    <!-- カメラシャッター用オーバーレイ -->
+    <div id="shutter-overlay" class="shutter-overlay">
+      <svg id="shutterSvg" class="shutter-svg" viewBox="0 0 400 400">
+        <defs>
+          <clipPath id="circleClip">
+            <circle cx="200" cy="200" r="200" />
+          </clipPath>
+        </defs>
+        <g id="blades" clip-path="url(#circleClip)"></g>
+      </svg>
+    </div>
     <div id="swup" class="transition-main">
       <GlobalHeader />
       <slot />
@@ -130,6 +141,28 @@ const { title, description } = Astro.props;
       }
       .photo-overlay__img.-is-animating {
         transition: all 2s cubic-bezier(0.25, 0.1, 0.25, 1);
+      }
+
+      /* カメラシャッター用オーバーレイ */
+      .shutter-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 200;
+        pointer-events: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+      }
+      .shutter-overlay.-is-active {
+        opacity: 1;
+      }
+      .shutter-svg {
+        width: 50vmax;
+        height: 50vmax;
       }
     </style>
   </body>

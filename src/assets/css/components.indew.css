@@ -8,9 +8,7 @@
     transition-property: var(--property);
   }
 
-
   [data-trigger="fadeIn"] {
-
     &[data-inview="false"] {
       opacity: 0;
     }
@@ -19,16 +17,15 @@
     }
   }
 
-
   [data-trigger="blurIn"] {
-     --property: opacity, filter;
+    --property: opacity, filter;
 
     &[data-inview="false"] {
       filter: blur(8px);
       opacity: 0;
     }
     &[data-inview="true"] {
-       filter: blur(0);
+      filter: blur(0);
       opacity: 1;
     }
   }

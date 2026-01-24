@@ -443,8 +443,8 @@ export class WebGL {
     this.velocity.y = 0;
 
     // オーバーレイ要素を取得
-    const overlay = document.getElementById('photo-overlay');
-    const img = document.getElementById('photo-overlay-img') as HTMLImageElement;
+    const overlay = document.getElementById("photo-overlay");
+    const img = document.getElementById("photo-overlay-img") as HTMLImageElement;
     if (!overlay || !img) return;
 
     // 画像を設定し、初期位置に配置
@@ -453,14 +453,14 @@ export class WebGL {
     img.style.top = `${startTop}px`;
     img.style.width = `${startWidth}px`;
     img.style.height = `${startHeight}px`;
-    img.classList.remove('-is-animating');
+    img.classList.remove("-is-animating");
 
     // オーバーレイを表示
-    overlay.classList.add('-is-active');
+    overlay.classList.add("-is-active");
 
     // 次のフレームでアニメーション開始
     requestAnimationFrame(() => {
-      img.classList.add('-is-animating');
+      img.classList.add("-is-animating");
 
       // 画面中央に拡大
       const finalWidth = Math.min(screenWidth * 0.9, screenHeight * 0.9);
@@ -474,20 +474,152 @@ export class WebGL {
       img.style.height = `${finalHeight}px`;
     });
 
-    // アニメーション完了後にページ遷移
+    // 写真アニメーション完了後にシャッターアニメーション開始
     setTimeout(() => {
-      if (window.swup) {
-        window.swup.navigate(targetUrl);
-      } else {
-        window.location.href = targetUrl;
-      }
-      // クリーンアップ
-      setTimeout(() => {
-        overlay.classList.remove('-is-active');
-        img.classList.remove('-is-animating');
-        this.isAnimating = false;
-      }, 100);
+      this.playShutterAnimation(() => {
+        // シャッター閉じた後にページ遷移
+        if (window.swup) {
+          window.swup.navigate(targetUrl);
+        } else {
+          window.location.href = targetUrl;
+        }
+        // クリーンアップ
+        setTimeout(() => {
+          overlay.classList.remove("-is-active");
+          img.classList.remove("-is-animating");
+          this.isAnimating = false;
+        }, 100);
+      });
     }, 2000);
+  }
+
+  // シャッターアニメーション
+  private playShutterAnimation(onComplete: () => void): void {
+    const NUM_BLADES = 6;
+    const CENTER = 200;
+    const OUTER_RADIUS = 200;
+    const GAP_HALF = 2.5;
+    const DIRECTION_OFFSET = Math.PI / 6;
+
+    const shutterOverlay = document.getElementById("shutter-overlay");
+    const bladesGroup = document.getElementById("blades");
+    if (!shutterOverlay || !bladesGroup) {
+      onComplete();
+      return;
+    }
+
+    // 直線と円の交点計算
+    const lineCircleIntersection = (px: number, py: number, lineAngle: number, radius: number) => {
+      const dx = Math.cos(lineAngle);
+      const dy = Math.sin(lineAngle);
+      const ox = px - CENTER;
+      const oy = py - CENTER;
+      const b = ox * dx + oy * dy;
+      const c = ox * ox + oy * oy - radius * radius;
+      const discriminant = b * b - c;
+      if (discriminant < 0) return null;
+      const sqrtD = Math.sqrt(discriminant);
+      const t1 = -b + sqrtD;
+      const t2 = -b - sqrtD;
+      return [
+        { x: px + t1 * dx, y: py + t1 * dy },
+        { x: px + t2 * dx, y: py + t2 * dy },
+      ];
+    };
+
+    // ブレードのパス生成
+    const createBladePath = (index: number, apertureValue: number): string => {
+      const angleStep = (Math.PI * 2) / NUM_BLADES;
+      const closedInnerRadius = 0;
+      const openInnerRadius = 190;
+      const innerRadius = closedInnerRadius + (openInnerRadius - closedInnerRadius) * apertureValue;
+      const rotation = apertureValue * angleStep * 0.5;
+
+      const pos1Angle = angleStep * index - Math.PI / 2 + rotation;
+      const dir1Angle = pos1Angle + DIRECTION_OFFSET;
+      const pos2Angle = angleStep * (index + 1) - Math.PI / 2 + rotation;
+      const dir2Angle = pos2Angle + DIRECTION_OFFSET;
+
+      const edge1PassX = CENTER + Math.cos(pos1Angle) * 50 + Math.cos(dir1Angle + Math.PI / 2) * GAP_HALF;
+      const edge1PassY = CENTER + Math.sin(pos1Angle) * 50 + Math.sin(dir1Angle + Math.PI / 2) * GAP_HALF;
+      const edge2PassX = CENTER + Math.cos(pos2Angle) * 50 + Math.cos(dir2Angle - Math.PI / 2) * GAP_HALF;
+      const edge2PassY = CENTER + Math.sin(pos2Angle) * 50 + Math.sin(dir2Angle - Math.PI / 2) * GAP_HALF;
+
+      const outer1Points = lineCircleIntersection(edge1PassX, edge1PassY, dir1Angle, OUTER_RADIUS);
+      const outer2Points = lineCircleIntersection(edge2PassX, edge2PassY, dir2Angle, OUTER_RADIUS);
+      const inner1Points = lineCircleIntersection(edge1PassX, edge1PassY, dir1Angle, Math.max(innerRadius, 1));
+      const inner2Points = lineCircleIntersection(edge2PassX, edge2PassY, dir2Angle, Math.max(innerRadius, 1));
+
+      if (!outer1Points || !outer2Points || !inner1Points || !inner2Points) return "";
+
+      const bladeCenterAngle = angleStep * (index + 0.5) - Math.PI / 2 + rotation;
+      const bladeCenterX = CENTER + Math.cos(bladeCenterAngle) * 100;
+      const bladeCenterY = CENTER + Math.sin(bladeCenterAngle) * 100;
+
+      const selectClosest = (points: { x: number; y: number }[], refX: number, refY: number) => {
+        const d0 = Math.hypot(points[0].x - refX, points[0].y - refY);
+        const d1 = Math.hypot(points[1].x - refX, points[1].y - refY);
+        return d0 < d1 ? points[0] : points[1];
+      };
+
+      const outerPoint1 = selectClosest(outer1Points, bladeCenterX, bladeCenterY);
+      const outerPoint2 = selectClosest(outer2Points, bladeCenterX, bladeCenterY);
+      const innerPoint1 = selectClosest(inner1Points, bladeCenterX, bladeCenterY);
+      const innerPoint2 = selectClosest(inner2Points, bladeCenterX, bladeCenterY);
+
+      const safeInnerRadius = Math.max(innerRadius, 1);
+      return `
+        M ${innerPoint1.x} ${innerPoint1.y}
+        L ${outerPoint1.x} ${outerPoint1.y}
+        A ${OUTER_RADIUS} ${OUTER_RADIUS} 0 0 1 ${outerPoint2.x} ${outerPoint2.y}
+        L ${innerPoint2.x} ${innerPoint2.y}
+        A ${safeInnerRadius} ${safeInnerRadius} 0 0 0 ${innerPoint1.x} ${innerPoint1.y}
+        Z
+      `;
+    };
+
+    // ブレード要素を初期化
+    bladesGroup.innerHTML = "";
+    for (let i = 0; i < NUM_BLADES; i++) {
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("fill", "#1a1a1a");
+      path.setAttribute("d", createBladePath(i, 1));
+      bladesGroup.appendChild(path);
+    }
+
+    // オーバーレイを表示
+    shutterOverlay.classList.add("-is-active");
+
+    // アニメーション
+    let aperture = 1;
+    const targetAperture = 0.15; // 0だとブレードが消えるので、少し開いた状態で止める
+    const animationSpeed = 0.03; // ゆっくり閉じる
+
+    const animateShutter = () => {
+      const diff = targetAperture - aperture;
+      if (Math.abs(diff) > 0.001) {
+        aperture += diff * animationSpeed * 2.5;
+        const paths = bladesGroup.querySelectorAll("path");
+        paths.forEach((path, i) => {
+          path.setAttribute("d", createBladePath(i, aperture));
+        });
+        requestAnimationFrame(animateShutter);
+      } else {
+        aperture = targetAperture;
+        const paths = bladesGroup.querySelectorAll("path");
+        paths.forEach((path, i) => {
+          path.setAttribute("d", createBladePath(i, aperture));
+        });
+        // シャッターが閉じた状態を維持するためインラインスタイルで固定
+        shutterOverlay.style.opacity = "1";
+        // シャッターが閉じた状態を少し見せてからページ遷移
+        setTimeout(() => {
+          onComplete();
+        }, 1000);
+      }
+    };
+
+    requestAnimationFrame(animateShutter);
   }
 
   private animate(): void {
