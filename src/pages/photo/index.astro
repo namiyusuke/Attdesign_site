@@ -1,0 +1,353 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { client } from '../../lib/microcms';
+
+// microCMSからphotoデータを取得
+const response = await client.getList({
+  endpoint: 'photo',
+  queries: { limit: 100 },
+});
+
+const photos = response.contents;
+---
+
+<Layout title="Photo Gallery" description="写真ギャラリー">
+  <main class="photo-gallery">
+    <div class="counter">
+      <span class="current">01</span> / <span class="total">{String(photos.length).padStart(2, '0')}</span>
+    </div>
+
+    <div class="gallery">
+      <div class="main-image-container">
+        <img class="main-image" src={photos[0]?.image.url} alt="Gallery Image" />
+      </div>
+      <div class="thumbnail-container">
+        <div class="thumbnail-track">
+          {photos.map((photo, index) => (
+            <div
+              class={`thumbnail-wrapper ${index === 0 ? 'active' : ''}`}
+              data-index={index}
+              data-src={photo.image.url}
+              data-id={photo.id}
+            >
+              <img src={`${photo.image.url}?w=300`} alt={`Thumbnail ${index + 1}`} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+
+  </main>
+</Layout>
+
+<style is:global>
+  .photo-gallery {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+    background: #f5f4f0;
+  }
+
+  .photo-gallery .counter {
+    position: fixed;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #999;
+    z-index: 100;
+  }
+
+  .photo-gallery .counter .current {
+    color: #333;
+    font-weight: 500;
+  }
+
+  .photo-gallery .gallery {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 80px 30px 30px;
+  }
+
+  .photo-gallery .main-image-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 100px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .photo-gallery .main-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+
+  .photo-gallery .thumbnail-container {
+    height: 120px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .photo-gallery .thumbnail-track {
+    display: flex;
+    gap: 12px;
+    padding: 10px calc(50vw - 40px);
+    position: absolute;
+    left: 0;
+    will-change: transform;
+  }
+
+  .photo-gallery .thumbnail-wrapper {
+    flex-shrink: 0;
+    cursor: pointer;
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    opacity: 0.4;
+    transition: opacity 0.3s ease;
+  }
+
+  .photo-gallery .thumbnail-wrapper:hover {
+    opacity: 0.7;
+  }
+
+  .photo-gallery .thumbnail-wrapper.active {
+    opacity: 1;
+  }
+
+  .photo-gallery .thumbnail-wrapper.active::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid #333;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  .photo-gallery .thumbnail-wrapper img {
+    display: block;
+    height: 80px;
+    width: auto;
+    object-fit: cover;
+  }
+
+
+  .photo-gallery .scroll-hint {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: #999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+
+
+
+  @media (max-width: 768px) {
+    .photo-gallery .gallery {
+      padding: 60px 15px 20px;
+    }
+
+    .photo-gallery .main-image-container {
+      padding: 10px 20px;
+    }
+
+    .photo-gallery .counter {
+      right: 15px;
+    }
+
+    .photo-gallery .thumbnail-wrapper img {
+      height: 60px;
+    }
+
+    .photo-gallery .thumbnail-container {
+      height: 90px;
+    }
+  }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" is:inline></script>
+
+<script is:inline>
+  (function() {
+    const mainImage = document.querySelector('.main-image');
+    const mainImageContainer = document.querySelector('.main-image-container');
+    const thumbnailTrack = document.querySelector('.thumbnail-track');
+    const thumbnailContainer = document.querySelector('.thumbnail-container');
+    const currentCounter = document.querySelector('.counter .current');
+    const thumbnails = document.querySelectorAll('.thumbnail-wrapper');
+
+    if (!mainImage || !thumbnailTrack || !thumbnailContainer || thumbnails.length === 0) return;
+
+    let currentIndex = 0;
+    let scrollPosition = 0;
+    let targetScrollPosition = 0;
+    let containerWidth = thumbnailContainer.offsetWidth;
+    let maxScroll = 0;
+    let thumbnailPositions = [];
+    let animationId = null;
+
+    function calculatePositions() {
+      containerWidth = thumbnailContainer.offsetWidth;
+
+      const firstThumbWidth = thumbnails[0].offsetWidth;
+      const initialPadding = containerWidth / 2 - firstThumbWidth / 2;
+      thumbnailTrack.style.paddingLeft = initialPadding + 'px';
+
+      const lastThumbWidth = thumbnails[thumbnails.length - 1].offsetWidth;
+      const endPadding = containerWidth / 2 - lastThumbWidth / 2;
+      thumbnailTrack.style.paddingRight = endPadding + 'px';
+
+      // 強制的にレイアウトを再計算
+      void thumbnailTrack.offsetWidth;
+
+      thumbnailPositions = [];
+      thumbnails.forEach((thumb, index) => {
+        const left = thumb.offsetLeft;
+        const width = thumb.offsetWidth;
+
+        thumbnailPositions.push({
+          left,
+          width,
+          center: left + width / 2,
+          index
+        });
+      });
+
+      // 最後のサムネイルが中央に来るまでスクロールできるように計算
+      const lastPos = thumbnailPositions[thumbnailPositions.length - 1];
+      maxScroll = lastPos.center - containerWidth / 2;
+      if (maxScroll < 0) maxScroll = 0;
+    }
+
+    function findActiveIndex() {
+      const centerPoint = scrollPosition + containerWidth / 2;
+      let closestIndex = 0;
+      let closestDistance = Infinity;
+
+      thumbnailPositions.forEach((pos, index) => {
+        const distance = Math.abs(pos.center - centerPoint);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+
+      return closestIndex;
+    }
+
+    function updateActive(newIndex) {
+      if (newIndex === currentIndex) return;
+
+      thumbnails.forEach((t, i) => {
+        t.classList.toggle('active', i === newIndex);
+      });
+
+      currentCounter.textContent = String(newIndex + 1).padStart(2, '0');
+
+      gsap.killTweensOf(mainImage);
+
+      const newSrc = thumbnails[newIndex].dataset.src;
+      mainImage.src = newSrc;
+      gsap.fromTo(mainImage,
+        { opacity: 0.3, scale: 1.02 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0,
+          ease: 'power2.out',
+          overwrite: true
+        }
+      );
+
+      currentIndex = newIndex;
+    }
+
+    function animate() {
+      scrollPosition += (targetScrollPosition - scrollPosition) * 0.15;
+
+      gsap.set(thumbnailTrack, {
+        x: -scrollPosition
+      });
+
+      const activeIndex = findActiveIndex();
+      updateActive(activeIndex);
+
+      animationId = requestAnimationFrame(animate);
+    }
+
+    function init() {
+      thumbnails.forEach((wrapper) => {
+        wrapper.addEventListener('click', () => {
+          const index = parseInt(wrapper.dataset.index || '0');
+          const pos = thumbnailPositions[index];
+          if (pos) {
+            targetScrollPosition = pos.center - containerWidth / 2;
+            targetScrollPosition = Math.max(0, Math.min(targetScrollPosition, maxScroll));
+          }
+        });
+      });
+
+      mainImageContainer.addEventListener('click', () => {
+        const id = thumbnails[currentIndex].dataset.id;
+        if (id) {
+          window.location.href = '/photo/' + id;
+        }
+      });
+
+      setTimeout(calculatePositions, 100);
+
+      document.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        targetScrollPosition += e.deltaY * 0.8;
+        targetScrollPosition = Math.max(0, Math.min(targetScrollPosition, maxScroll));
+      }, { passive: false });
+
+      let touchStartX = 0;
+      let touchStartScroll = 0;
+
+      document.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartScroll = targetScrollPosition;
+      }, { passive: true });
+
+      document.addEventListener('touchmove', (e) => {
+        const touchX = e.touches[0].clientX;
+        const diff = touchStartX - touchX;
+        targetScrollPosition = touchStartScroll + diff;
+        targetScrollPosition = Math.max(0, Math.min(targetScrollPosition, maxScroll));
+      }, { passive: true });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+          targetScrollPosition += 150;
+        } else if (e.key === 'ArrowLeft') {
+          targetScrollPosition -= 150;
+        }
+        targetScrollPosition = Math.max(0, Math.min(targetScrollPosition, maxScroll));
+      });
+
+      animate();
+
+      window.addEventListener('resize', () => {
+        containerWidth = thumbnailContainer.offsetWidth;
+        calculatePositions();
+      });
+    }
+
+    init();
+  })();
+</script>
