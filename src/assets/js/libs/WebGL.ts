@@ -13,8 +13,8 @@ declare global {
   }
 }
 
-const ATLAS_COLS = 5;
-const ATLAS_ROWS = 2;
+const ATLAS_COLS = 4;
+const ATLAS_ROWS = 4;
 const baseRepeat = 3;
 
 export class WebGL {
@@ -102,9 +102,9 @@ export class WebGL {
         u_repeat: { value: new THREE.Vector2(baseRepeat, baseRepeat) },
         u_gap: { value: 0.0 },
         u_depth: { value: 0.0 },
-        u_imageCount: { value: 10.0 },
-        u_atlasCols: { value: 5.0 },
-        u_atlasRows: { value: 2.0 },
+        u_imageCount: { value: 16.0 },
+        u_atlasCols: { value: 4.0 },
+        u_atlasRows: { value: 4.0 },
       },
       vertexShader: `
         varying vec2 v_uv;
@@ -201,8 +201,8 @@ export class WebGL {
   }
 
   private createTextureAtlas(images: (HTMLImageElement | HTMLCanvasElement)[]): THREE.CanvasTexture {
-    const atlasWidth = 2560; // 512 * 5
-    const atlasHeight = 1024; // 512 * 2
+    const atlasWidth = 2048; // 512 * 4
+    const atlasHeight = 2048; // 512 * 4
     const tileWidth = atlasWidth / ATLAS_COLS;
     const tileHeight = atlasHeight / ATLAS_ROWS;
 
@@ -415,8 +415,8 @@ export class WebGL {
     }
 
     // XとY座標を組み合わせて決定（シェーダーと同じ計算）
-    const calcValue = tileIndexX + tileIndexY * 5;
-    const imageIndex = ((calcValue % 10) + 10) % 10;
+    const calcValue = tileIndexX + tileIndexY * ATLAS_COLS;
+    const imageIndex = ((calcValue % 16) + 16) % 16;
 
     // 遷移先URLとimage URLを取得
     const targetUrl = this.imageURLs[imageIndex];
