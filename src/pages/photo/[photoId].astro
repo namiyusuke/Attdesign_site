@@ -11,12 +11,46 @@ export async function getStaticPaths() {
 }
 
 const { photo } = Astro.props;
+
+// 日付をYYYY/MM/DD形式にフォーマット
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}/${month}/${day}`;
+};
+
+const createdAt = formatDate(photo.createdAt);
 ---
 
 <Layout>
   <main class="photo-detail">
-    <div class="photo-detail__image" id="bulge-container" data-image-url={photo.image.url}>
-      <!-- WebGLでレンダリングされる -->
+    <div class="photo-detail-wrapper">
+      <div class="photo-detail-body">
+        <div class="photo-detail__image" id="bulge-container" data-image-url={photo.image.url}>
+          <!-- WebGLでレンダリングされる -->
+        </div>
+      <div class="photo-detail-content">
+        {photo.date ?
+          <p set:html={photo.date} ></p>
+          :
+          <p>{createdAt}</p>
+        }
+        {photo.title &&
+          <h1 set:html={photo.title} ></h1>
+        }
+        {photo.text &&
+          <Fragment set:html={photo.text} />
+        }
+        {photo.camera &&
+          <p>
+            <Fragment set:html={photo.camera} />
+          </p>
+        }
+        {photo.category?.data && <p class="photo-category">{photo.category.data}</p>}
+      </div>
+      </div>
     </div>
   </main>
 </Layout>
@@ -32,10 +66,38 @@ const { photo } = Astro.props;
   }
 
   .photo-detail__image {
-    width: 90vmin;
-    height: 90vmin;
-    max-width: 800px;
-    max-height: 800px;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+  }
+
+  .photo-detail__image canvas {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+  }
+  .photo-detail-content{
+    margin-top:calc(84 / 16 * 1rem)
+  }
+  .photo-detail-body{
+    display: grid;
+    column-gap:40px ;
+    grid-template-columns: calc(600 / 1046 * 100%) calc(406 / 1046 * 100%);
+  }
+  .photo-detail-wrapper{
+    max-inline-size: 1046px;
+    margin-inline: auto;
+  }
+  .photo-category{
+    display: inline-block;
+    background-color: #BFBFBF;
+    font-weight: 700;
+    line-height: 1;
+    padding: calc(8 / 16 * 1rem) calc(12 / 16 * 1rem);
+    font-size: calc(14 / 16 * 1rem);
   }
 </style>
-

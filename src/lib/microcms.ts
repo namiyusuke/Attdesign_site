@@ -8,6 +8,10 @@ export const client = createClient({
 // 型定義
 export type Photo = {
   id: string;
+  text: string;
+  camera: string;
+  date: string;
+  category: string;
   image: {
     url: string;
     width: number;

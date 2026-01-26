@@ -316,20 +316,21 @@ const photos = response.contents;
         targetScrollPosition = Math.max(0, Math.min(targetScrollPosition, maxScroll));
       }, { passive: false });
 
-      let touchStartX = 0;
+      let touchStartY = 0;
       let touchStartScroll = 0;
 
       document.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
         touchStartScroll = targetScrollPosition;
-      }, { passive: true });
+      }, { passive: false });
 
       document.addEventListener('touchmove', (e) => {
-        const touchX = e.touches[0].clientX;
-        const diff = touchStartX - touchX;
+        e.preventDefault();
+        const touchY = e.touches[0].clientY;
+        const diff = touchStartY - touchY;
         targetScrollPosition = touchStartScroll + diff;
         targetScrollPosition = Math.max(0, Math.min(targetScrollPosition, maxScroll));
-      }, { passive: true });
+      }, { passive: false });
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowRight') {
