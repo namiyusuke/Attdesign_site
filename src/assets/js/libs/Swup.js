@@ -3,9 +3,26 @@ import SwupJsPlugin from "@swup/js-plugin";
 import SwupHeadPlugin from "@swup/head-plugin";
 import SwupScriptsPlugin from "@swup/scripts-plugin";
 import { BulgeImage } from "./BulgeImage";
+import { LeafShadow } from "./LeafShadow";
 
 // グローバルにインスタンスを保持
 let bulgeInstance = null;
+let leafShadowInstance = null;
+
+function initLeafShadow() {
+  requestAnimationFrame(() => {
+    const canvas = document.getElementById("leaf-shadow-canvas");
+    if (!canvas) return;
+
+    // 既存のインスタンスがあれば破棄
+    if (leafShadowInstance) {
+      leafShadowInstance.destroy();
+      leafShadowInstance = null;
+    }
+
+    leafShadowInstance = new LeafShadow(canvas);
+  });
+}
 
 function initBulgeImage() {
   requestAnimationFrame(() => {
@@ -62,13 +79,15 @@ export default function swupFunc() {
     ],
   });
 
-  // ページ遷移完了後にBulgeImage初期化
+  // ページ遷移完了後に初期化
   swup.hooks.on("page:view", () => {
     initBulgeImage();
+    initLeafShadow();
   });
 
   // 初回ロード時もチェック
   initBulgeImage();
+  initLeafShadow();
 
   // グローバルに公開（WebGLなどからナビゲーションに使用）
   window.swup = swup;
