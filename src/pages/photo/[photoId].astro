@@ -3,7 +3,10 @@ import Layout from '../../layouts/Layout.astro';
 import { client, type Photo } from '../../lib/microcms';
 
 export async function getStaticPaths() {
-  const response = await client.getList<Photo>({ endpoint: 'photo' });
+  const response = await client.getList<Photo>({
+    endpoint: 'photo',
+    queries: { limit: 100 }, // 全件取得（必要に応じて増やす）
+  });
   return response.contents.map((photo) => ({
     params: { photoId: photo.id },
     props: { photo },
@@ -37,18 +40,20 @@ const createdAt = formatDate(photo.createdAt);
         </div>
       <div class="photo-detail-content">
         {photo.date ?
-          <p set:html={photo.date} ></p>
+          <p class="photo-detail-date" set:html={photo.date} ></p>
           :
-          <p>{createdAt}</p>
+          <p class="photo-detail-date">{createdAt}</p>
         }
         {photo.title &&
           <h1 set:html={photo.title} ></h1>
         }
+
         {photo.text &&
-          <Fragment set:html={photo.text} />
+            <p class="photo-detail-text" set:html={photo.text} />
         }
+
         {photo.camera &&
-          <p>
+          <p class="photo-detail-camera">
             <Fragment set:html={photo.camera} />
           </p>
         }
@@ -77,17 +82,24 @@ const createdAt = formatDate(photo.createdAt);
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 2rem;
     box-sizing: border-box;
   }
-
+  .photo-detail-date{
+    font-size:calc(16 / 16 * 1rem) ;
+    margin-bottom: calc(20 / 16 * 1rem) ;
+  }
+  .photo-detail-camera{
+    margin-bottom: calc(40 / 16 * 1rem) ;
+  }
   .photo-detail__image {
     position: relative;
     width: 100%;
     aspect-ratio: 1/1;
     overflow: hidden;
   }
-
+.photo-detail-text{
+  margin-top:calc(40 / 16 * 1rem) ;
+}
   .photo-detail__image canvas {
     position: absolute !important;
     top: 0 !important;
@@ -99,10 +111,13 @@ const createdAt = formatDate(photo.createdAt);
   .photo-detail-content{
     margin-top:calc(84 / 16 * 1rem)
   }
+
+  @media (min-width:768px) {
   .photo-detail-body{
     display: grid;
     column-gap:40px ;
-    grid-template-columns: calc(600 / 1046 * 100%) calc(406 / 1046 * 100%);
+    grid-template-columns: min(calc(600 / 1440 * 100vw),600px) 1fr;
+  }
   }
   .photo-detail-wrapper{
     max-inline-size: 1046px;
@@ -149,40 +164,6 @@ const createdAt = formatDate(photo.createdAt);
   /* 夜 (19:00 - 5:00) */
   .time-overlay.is-night {
     background: linear-gradient(69.03deg, rgba(255, 253, 253, 0.2) 0.81%, #040404 100%);
-    opacity: 0.6;
+    opacity: 0.5;
   }
 </style>
-
-<script>
-  function updateTimeOverlay() {
-    const overlay = document.getElementById('time-overlay');
-    if (!overlay) return;
-
-    const hour = new Date().getHours();
-
-    // 既存のクラスをリセット
-    overlay.classList.remove('is-morning', 'is-daytime', 'is-evening', 'is-night');
-
-    if (hour >= 5 && hour < 10) {
-      // 朝 (5:00 - 10:00)
-      overlay.classList.add('is-morning');
-    } else if (hour >= 10 && hour < 17) {
-      // 昼 (10:00 - 17:00)
-      overlay.classList.add('is-daytime');
-    } else if (hour >= 17 && hour < 19) {
-      // 夕方 (17:00 - 19:00)
-      overlay.classList.add('is-evening');
-    } else {
-      // 夜 (19:00 - 5:00)
-      overlay.classList.add('is-night');
-    }
-  }
-
-  // 初回実行
-  updateTimeOverlay();
-
-  // swupのページ遷移後にも実行
-  if (window.swup) {
-    window.swup.hooks.on('page:view', updateTimeOverlay);
-  }
-</script>

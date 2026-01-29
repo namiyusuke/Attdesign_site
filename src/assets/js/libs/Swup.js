@@ -24,6 +24,30 @@ function initLeafShadow() {
   });
 }
 
+function updateTimeOverlay() {
+  const overlay = document.getElementById("time-overlay");
+  if (!overlay) return;
+
+  const hour = new Date().getHours();
+
+  // 既存のクラスをリセット
+  overlay.classList.remove("is-morning", "is-daytime", "is-evening", "is-night");
+
+  if (hour >= 5 && hour < 10) {
+    // 朝 (5:00 - 10:00)
+    overlay.classList.add("is-morning");
+  } else if (hour >= 10 && hour < 17) {
+    // 昼 (10:00 - 17:00)
+    overlay.classList.add("is-daytime");
+  } else if (hour >= 17 && hour < 19) {
+    // 夕方 (17:00 - 19:00)
+    overlay.classList.add("is-evening");
+  } else {
+    // 夜 (19:00 - 5:00)
+    overlay.classList.add("is-night");
+  }
+}
+
 function initBulgeImage() {
   requestAnimationFrame(() => {
     const container = document.getElementById("bulge-container");
@@ -83,11 +107,13 @@ export default function swupFunc() {
   swup.hooks.on("page:view", () => {
     initBulgeImage();
     initLeafShadow();
+    updateTimeOverlay();
   });
 
   // 初回ロード時もチェック
   initBulgeImage();
   initLeafShadow();
+  updateTimeOverlay();
 
   // グローバルに公開（WebGLなどからナビゲーションに使用）
   window.swup = swup;
