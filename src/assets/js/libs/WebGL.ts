@@ -102,7 +102,7 @@ export class WebGL {
         u_repeat: { value: new THREE.Vector2(baseRepeat, baseRepeat) },
         u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
         u_gap: { value: 0.0 },
-        u_baseGap: { value: 4.0 }, // 固定の隙間（ピクセル）
+        u_baseGap: { value: 2.0 }, // 固定の隙間（ピクセル）
         u_depth: { value: 0.0 },
         u_imageCount: { value: 16.0 },
         u_atlasCols: { value: 4.0 },
