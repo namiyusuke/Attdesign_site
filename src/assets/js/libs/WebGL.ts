@@ -100,7 +100,9 @@ export class WebGL {
         u_texture: { value: null },
         u_offset: { value: new THREE.Vector2(0, 0) },
         u_repeat: { value: new THREE.Vector2(baseRepeat, baseRepeat) },
+        u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
         u_gap: { value: 0.0 },
+        u_baseGap: { value: 4.0 }, // 固定の隙間（ピクセル）
         u_depth: { value: 0.0 },
         u_imageCount: { value: 16.0 },
         u_atlasCols: { value: 4.0 },
@@ -119,7 +121,9 @@ export class WebGL {
         uniform sampler2D u_texture;
         uniform vec2 u_offset;
         uniform vec2 u_repeat;
+        uniform vec2 u_resolution;
         uniform float u_gap;
+        uniform float u_baseGap;
         uniform float u_depth;
         uniform float u_imageCount;
         uniform float u_atlasCols;
@@ -144,8 +148,11 @@ export class WebGL {
           // タイル内のローカルUV
           vec2 tileUV = fract(uv);
 
-          // ギャップを適用
-          float gap = u_gap * 0.09;
+          // ギャップを適用（固定ピクセル + 速度による動的ギャップ）
+          vec2 tileSize = u_resolution / u_repeat;
+          float baseGapUV = u_baseGap / min(tileSize.x, tileSize.y);
+          float dynamicGap = u_gap * 0.09;
+          float gap = baseGapUV + dynamicGap;
           vec2 scaledUV = (tileUV - 0.5) / (1.0 - gap * 2.0) + 0.5;
 
           // タイル外かどうかチェック
@@ -153,7 +160,7 @@ export class WebGL {
 
           vec4 color;
           if (isOutside) {
-            color = vec4(1., 1., 1., 1.0);
+            color = vec4(0.922, 0.922, 0.922, 1.0);
           } else {
             // XとY座標を組み合わせて決定（縦横で異なる画像になる）
             float indexFloat = mod(tileIndex.x + tileIndex.y * u_atlasCols, u_imageCount);
@@ -295,6 +302,7 @@ export class WebGL {
 
   private onResize(): void {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.material.uniforms.u_resolution.value.set(window.innerWidth, window.innerHeight);
     this.updateAspect();
   }
 
