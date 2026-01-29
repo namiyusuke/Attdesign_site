@@ -25,6 +25,7 @@ const photos = response.contents;
         <div class="thumbnail-track">
           {photos.map((photo, index) => (
             <div
+              id={`photo-${photo.id}`}
               class={`thumbnail-wrapper ${index === 0 ? 'active' : ''}`}
               data-index={index}
               data-src={photo.image.url}
@@ -39,9 +40,8 @@ const photos = response.contents;
 
 
   </main>
-</Layout>
 
-<style is:global>
+  <style is:global>
   .photo-gallery {
     position: relative;
     height: 100vh;
@@ -181,8 +181,20 @@ const photos = response.contents;
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" is:inline></script>
 
-<script is:inline>
+<script is:inline data-swup-reload-script>
   (function() {
+    // GSAPがロードされるまで待つ
+    function waitForGsap(callback) {
+      if (typeof gsap !== 'undefined') {
+        callback();
+      } else {
+        setTimeout(function() { waitForGsap(callback); }, 50);
+      }
+    }
+
+    waitForGsap(initPhotoGallery);
+
+    function initPhotoGallery() {
     const mainImage = document.querySelector('.main-image');
     const mainImageContainer = document.querySelector('.main-image-container');
     const thumbnailTrack = document.querySelector('.thumbnail-track');
@@ -289,6 +301,21 @@ const photos = response.contents;
       animationId = requestAnimationFrame(animate);
     }
 
+    function scrollToPhotoById(photoId) {
+      const targetThumb = document.getElementById(photoId);
+      if (targetThumb) {
+        const index = parseInt(targetThumb.dataset.index || '0');
+        const pos = thumbnailPositions[index];
+        if (pos) {
+          // 即座に位置を設定（スムーズスクロールではなく初期位置として）
+          scrollPosition = pos.center - containerWidth / 2;
+          scrollPosition = Math.max(0, Math.min(scrollPosition, maxScroll));
+          targetScrollPosition = scrollPosition;
+          updateActive(index);
+        }
+      }
+    }
+
     function init() {
       thumbnails.forEach((wrapper) => {
         wrapper.addEventListener('click', () => {
@@ -308,7 +335,14 @@ const photos = response.contents;
         }
       });
 
-      setTimeout(calculatePositions, 100);
+      setTimeout(() => {
+        calculatePositions();
+        // URLハッシュがあれば該当写真に移動
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+          scrollToPhotoById(hash);
+        }
+      }, 100);
 
       document.addEventListener('wheel', (e) => {
         e.preventDefault();
@@ -350,5 +384,7 @@ const photos = response.contents;
     }
 
     init();
+    } // initPhotoGallery end
   })();
 </script>
+</Layout>

@@ -13,7 +13,7 @@ const photos = response.contents;
 // WebGLに渡すデータ（画像URLとリンク先）
 const photoData = photos.map(p => ({
   imageUrl: p.image.url,
-  linkUrl: `/photo/${p.id}`,
+  linkUrl: `/photo#photo-${p.id}`,
 }));
 ---
 

@@ -72,7 +72,10 @@ export default function swupFunc() {
       new SwupHeadPlugin({
         persistAssets: true,
       }),
-      new SwupScriptsPlugin(),
+      new SwupScriptsPlugin({
+        head: true,
+        body: true,
+      }),
       new SwupJsPlugin({
         animations: [
           {
