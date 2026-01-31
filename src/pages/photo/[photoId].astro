@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { client, type Photo } from '../../lib/microcms';
+import { client, type Photo, type Category } from '../../lib/microcms';
 import kumin from "@assets/img/kuu-icon.png"
 
 export async function getStaticPaths() {
@@ -13,6 +13,13 @@ export async function getStaticPaths() {
     props: { photo },
   }));
 }
+// microCMSからcategoryデータを取得
+const categoryResponse = await client.getList<Category>({
+  endpoint: 'category',
+  queries: { limit: 100 },
+});
+
+const categories = categoryResponse.contents;
 
 const { photo } = Astro.props;
 
@@ -33,12 +40,26 @@ const createdAt = formatDate(photo.createdAt);
     <p class="header-icon">
       <img src={kumin.src} alt="">
     </p>
+    <p class="header-icon-filter">View</p>
   </div>
   <div class="menu">
     <div class="menu-inner">
+      <span class="menu-close"></span>
       <p>一瞬の空気感を切り取れるような1枚を目指して、写真の練習に励んでいます。</p>
       <p>『Photoire』＝写真で残す日々の記録です。</p>
       <p>Web design/Graphic design/<br>Direction support</p>
+    </div>
+  </div>
+  <div class="menu-filter">
+    <div class="menu-filter-inner">
+      <span class="menu-close"></span>
+      <ul>
+        {categories.map((cat) => (
+          <li>
+            <a href={`/photo/?category=${cat.data}`}>{cat.data}</a>
+          </li>
+        ))}
+      </ul>
     </div>
   </div>
   <!-- 背景用キャンバス（葉の影エフェクト） -->
@@ -78,11 +99,88 @@ const createdAt = formatDate(photo.createdAt);
 </Layout>
 
 <style>
+  .menu-close{
+    width: calc(20 / 16 * 1rem) ;
+    height: calc(20 / 16 * 1rem) ;
+    position: absolute;
+    top: calc(24 / 16 * 1rem) ;
+    right: calc(24 / 16 * 1rem) ;
+    cursor: pointer;
+  }
+  .header-icon-filter{
+    cursor: pointer;
+    line-height: 1;
+    background-color:#202020 ;
+    color: #fff;
+    padding-block: calc(12 / 16 * 1rem);
+    padding-inline: 1rem;
+    font-size: calc(14 / 16 * 1rem);
+  }
+  .menu-filter{
+    position: fixed;
+    top: 100px;
+    right: 48px;
+    width: 230px;
+    color: #222;
+    z-index: 10;
+    opacity: 0;
+    transform: translate(200px, -300%) rotate(-15deg);
+    pointer-events: none;
+    transition: opacity 0.4s ease-out, transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: grab;
+  }
+  .menu-filter.is-active{
+    opacity: 1;
+    transform: translate(0, 0) rotate(3deg);
+    pointer-events: auto;
+  }
+  .menu-filter.is-dragging{
+    cursor: grabbing;
+    transition: none;
+  }
+  .menu-filter-inner{
+    padding-block: calc(80 / 16 * 1rem);
+    padding-inline: calc(43 / 16 * 1rem);
+    background-color: rgba(32, 32, 32, .9);
+    text-align: center;
+  }
+   .menu-filter-inner a{
+    color: #fff;
+   }
+  .menu-filter-inner ul{
+    list-style: none;
+  }
+  .menu-filter-inner li +li{
+    margin-top: calc(24 / 16 * 1rem);
+  }
+  .menu-close::after,
+  .menu-close::before{
+    position: absolute;
+    margin: auto;
+    content: "";
+    width: 100%;
+    height: 1px;
+    background-color: #202020;
+  }
+  .menu-filter-inner .menu-close::after,
+  .menu-filter-inner .menu-close::before{
+    background-color: #fff;
+  }
+  .menu-close::after{
+    transform: rotate(45deg);
+  }
+  .menu-close::before{
+    transform: rotate(-45deg);
+  }
   .header{
     position: fixed;
     top: calc(54 / 16 * 1rem) ;
     right: calc(48 / 16 * 1rem) ;
     z-index: 100;
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    column-gap: calc(24 / 16 * 1rem) ;;
   }
   .header-icon{
     width: calc(40 / 16 * 1rem);
@@ -221,6 +319,7 @@ const createdAt = formatDate(photo.createdAt);
   document.addEventListener('DOMContentLoaded', () => {
     const headerIcon = document.querySelector('.header-icon') as HTMLElement | null;
     const menu = document.querySelector('.menu') as HTMLElement | null;
+    const menuClose = document.querySelector('.menu-close') as HTMLElement | null;
 
     if (!headerIcon || !menu) return;
 
@@ -236,6 +335,12 @@ const createdAt = formatDate(photo.createdAt);
     let currentX = menuRect.left;
     let currentY = menuRect.top;
 
+    const closeMenu = () => {
+      isMenuOpen = false;
+      menu.style.transform = 'translate(200px, -300%) rotate(-15deg)';
+      menu.classList.remove('is-active');
+    };
+
     // header-iconクリックでメニュー開閉
     headerIcon.addEventListener('click', () => {
       isMenuOpen = !isMenuOpen;
@@ -248,12 +353,21 @@ const createdAt = formatDate(photo.createdAt);
         // メニューを開く（斜めに投げられるアニメーション）
         menu.classList.add('is-active');
         menu.style.transform = 'translate(0, 0) rotate(3deg)';
-      } else {
-        // メニューを閉じる
-        menu.style.transform = 'translate(200px, -300%) rotate(-15deg)';
-        menu.classList.remove('is-active');
       }
     });
+
+    // menu-closeクリックでアニメーションなしで即座に閉じる
+    if (menuClose) {
+      menuClose.addEventListener('click', (e: MouseEvent) => {
+        e.stopPropagation();
+        menu.style.transition = 'none';
+        closeMenu();
+        // 次フレームでtransitionを復元（再度開くときにアニメーションさせるため）
+        requestAnimationFrame(() => {
+          menu.style.transition = '';
+        });
+      });
+    }
 
     // ドラッグ開始
     menu.addEventListener('mousedown', (e: MouseEvent) => {
@@ -334,5 +448,110 @@ const createdAt = formatDate(photo.createdAt);
         menu.classList.remove('is-dragging');
       }
     });
+
+    // --- menu-filter の開閉・ドラッグ ---
+    const headerIconFilter = document.querySelector('.header-icon-filter') as HTMLElement | null;
+    const menuFilter = document.querySelector('.menu-filter') as HTMLElement | null;
+    const menuFilterClose = menuFilter?.querySelector('.menu-close') as HTMLElement | null;
+
+    if (headerIconFilter && menuFilter) {
+      let isFilterOpen = false;
+      let isFilterDragging = false;
+      let filterStartX = 0;
+      let filterStartY = 0;
+      let filterInitialX = 0;
+      let filterInitialY = 0;
+
+      const closeFilter = () => {
+        isFilterOpen = false;
+        menuFilter.style.transform = 'translate(200px, -300%) rotate(-15deg)';
+        menuFilter.classList.remove('is-active');
+      };
+
+      headerIconFilter.addEventListener('click', () => {
+        isFilterOpen = !isFilterOpen;
+        if (isFilterOpen) {
+          // 既存メニューが開いていたら閉じる
+          closeMenu();
+          menuFilter.style.left = '';
+          menuFilter.style.top = '';
+          menuFilter.style.right = '48px';
+          menuFilter.classList.add('is-active');
+          menuFilter.style.transform = 'translate(0, 0) rotate(3deg)';
+        }
+      });
+
+      if (menuFilterClose) {
+        menuFilterClose.addEventListener('click', (e: MouseEvent) => {
+          e.stopPropagation();
+          menuFilter.style.transition = 'none';
+          closeFilter();
+          requestAnimationFrame(() => {
+            menuFilter.style.transition = '';
+          });
+        });
+      }
+
+      // ドラッグ
+      menuFilter.addEventListener('mousedown', (e: MouseEvent) => {
+        if (!isFilterOpen) return;
+        isFilterDragging = true;
+        menuFilter.classList.add('is-dragging');
+        filterStartX = e.clientX;
+        filterStartY = e.clientY;
+        const rect = menuFilter.getBoundingClientRect();
+        filterInitialX = rect.left;
+        filterInitialY = rect.top;
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', (e: MouseEvent) => {
+        if (!isFilterDragging) return;
+        const deltaX = e.clientX - filterStartX;
+        const deltaY = e.clientY - filterStartY;
+        menuFilter.style.left = `${filterInitialX + deltaX}px`;
+        menuFilter.style.top = `${filterInitialY + deltaY}px`;
+        menuFilter.style.right = 'auto';
+        menuFilter.style.transform = 'translate(0, 0) rotate(3deg)';
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (isFilterDragging) {
+          isFilterDragging = false;
+          menuFilter.classList.remove('is-dragging');
+        }
+      });
+
+      // タッチ対応
+      menuFilter.addEventListener('touchstart', (e: TouchEvent) => {
+        if (!isFilterOpen) return;
+        isFilterDragging = true;
+        menuFilter.classList.add('is-dragging');
+        const touch = e.touches[0];
+        filterStartX = touch.clientX;
+        filterStartY = touch.clientY;
+        const rect = menuFilter.getBoundingClientRect();
+        filterInitialX = rect.left;
+        filterInitialY = rect.top;
+      });
+
+      document.addEventListener('touchmove', (e: TouchEvent) => {
+        if (!isFilterDragging) return;
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - filterStartX;
+        const deltaY = touch.clientY - filterStartY;
+        menuFilter.style.left = `${filterInitialX + deltaX}px`;
+        menuFilter.style.top = `${filterInitialY + deltaY}px`;
+        menuFilter.style.right = 'auto';
+        menuFilter.style.transform = 'translate(0, 0) rotate(3deg)';
+      });
+
+      document.addEventListener('touchend', () => {
+        if (isFilterDragging) {
+          isFilterDragging = false;
+          menuFilter.classList.remove('is-dragging');
+        }
+      });
+    }
   });
 </script>

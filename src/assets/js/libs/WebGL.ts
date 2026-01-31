@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import gsap from "gsap";
 
 // グローバル変数の型定義
 declare global {
@@ -46,6 +47,9 @@ export class WebGL {
 
   // クリック時のアニメーション用
   private isAnimating = false;
+
+  // イントロアニメーション用
+  private isIntro = true;
 
   // イベントリスナーのバインド
   private boundOnResize: () => void;
@@ -107,6 +111,7 @@ export class WebGL {
         u_imageCount: { value: 16.0 },
         u_atlasCols: { value: 4.0 },
         u_atlasRows: { value: 4.0 },
+        u_bulge: { value: 1.0 },
       },
       vertexShader: `
         varying vec2 v_uv;
@@ -128,10 +133,29 @@ export class WebGL {
         uniform float u_imageCount;
         uniform float u_atlasCols;
         uniform float u_atlasRows;
+        uniform float u_bulge;
+
+        // バルジ（魚眼）歪曲関数
+        const float bulgeRadius = 0.5;
+        const float bulgeStrength = 0.9;
+
+        vec2 bulge(vec2 uv) {
+          float dist = length(uv) / bulgeRadius;
+          float distPow = pow(dist, 2.0);
+          float strengthAmount = bulgeStrength / (1.0 + distPow);
+          uv *= strengthAmount;
+          return uv;
+        }
 
         void main() {
+          // === バルジ歪曲をUV全体に適用 ===
+          vec2 centeredRaw = v_uv - 0.5;
+          vec2 bulgedRaw = bulge(centeredRaw);
+          // u_bulgeが1.0のとき最大歪曲、0.0のとき歪曲なし
+          vec2 baseUV = mix(v_uv, bulgedRaw + 0.5, u_bulge);
+
           // 画面中心からの距離
-          vec2 centered = v_uv - 0.5;
+          vec2 centered = baseUV - 0.5;
           float distFromCenter = length(centered);
 
           // 奥行き効果
@@ -288,6 +312,7 @@ export class WebGL {
       this.material.uniforms.u_texture.value = this.atlasTexture;
       this.updateAspect();
       this.animate();
+      this.playIntroAnimation();
     });
   }
 
@@ -307,6 +332,7 @@ export class WebGL {
   }
 
   private onMouseDown(e: MouseEvent): void {
+    if (this.isIntro) return;
     this.isDragging = true;
     this.lastMousePos.x = e.clientX;
     this.lastMousePos.y = e.clientY;
@@ -340,6 +366,7 @@ export class WebGL {
 
   private onTouchStart(e: TouchEvent): void {
     e.preventDefault();
+    if (this.isIntro) return;
     this.isDragging = true;
     const touch = e.touches[0];
     this.lastMousePos.x = touch.clientX;
@@ -372,13 +399,14 @@ export class WebGL {
 
   private onWheel(e: WheelEvent): void {
     e.preventDefault();
+    if (this.isIntro) return;
     this.velocity.x += e.deltaX * 0.0002;
     this.velocity.y -= e.deltaY * 0.0002;
   }
 
   private onClick(e: MouseEvent): void {
-    // アニメーション中はクリックを無視
-    if (this.isAnimating) return;
+    // アニメーション中・イントロ中はクリックを無視
+    if (this.isAnimating || this.isIntro) return;
 
     // クリック位置を0〜1のUV座標に変換
     const rect = this.canvas.getBoundingClientRect();
@@ -630,11 +658,26 @@ export class WebGL {
     requestAnimationFrame(animateShutter);
   }
 
+  private playIntroAnimation(): void {
+    this.isIntro = true;
+    this.material.uniforms.u_bulge.value = 1.0;
+
+    gsap.to(this.material.uniforms.u_bulge, {
+      value: 0.0,
+      duration: 1.5,
+      ease: "power3.out",
+      delay: 0.3,
+      onComplete: () => {
+        this.isIntro = false;
+      },
+    });
+  }
+
   private animate(): void {
     requestAnimationFrame(this.animate.bind(this));
 
-    // アニメーション中はWebGLの動きを止める
-    if (!this.isAnimating) {
+    // アニメーション中・イントロ中はWebGLの動きを止める
+    if (!this.isAnimating && !this.isIntro) {
       this.offset.x += 0.003;
 
       // 慣性を適用

@@ -18,3 +18,7 @@ export type Photo = {
     height: number;
   };
 };
+// 型定義
+export type Category = {
+  data: string;
+};

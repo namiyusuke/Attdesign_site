@@ -30,6 +30,7 @@ const photos = response.contents;
               data-index={index}
               data-src={photo.image.url}
               data-id={photo.id}
+              data-category={photo.category?.data || ''}
             >
               <img src={`${photo.image.url}?w=300`} alt={`Thumbnail ${index + 1}`} />
             </div>
@@ -195,14 +196,46 @@ const photos = response.contents;
     waitForGsap(initPhotoGallery);
 
     function initPhotoGallery() {
+    // カテゴリフィルタリング
+    const urlParams = new URLSearchParams(window.location.search);
+    const filterCategory = urlParams.get('category');
+    if (filterCategory) {
+      document.querySelectorAll('.thumbnail-wrapper').forEach(function(thumb) {
+        if (thumb.dataset.category !== filterCategory) {
+          thumb.style.display = 'none';
+        }
+      });
+    }
+
     const mainImage = document.querySelector('.main-image');
     const mainImageContainer = document.querySelector('.main-image-container');
     const thumbnailTrack = document.querySelector('.thumbnail-track');
     const thumbnailContainer = document.querySelector('.thumbnail-container');
     const currentCounter = document.querySelector('.counter .current');
-    const thumbnails = document.querySelectorAll('.thumbnail-wrapper');
+    const thumbnails = document.querySelectorAll('.thumbnail-wrapper:not([style*="display: none"])');
 
     if (!mainImage || !thumbnailTrack || !thumbnailContainer || thumbnails.length === 0) return;
+
+    // フィルタ後のインデックス再割り当て
+    thumbnails.forEach(function(thumb, i) {
+      thumb.dataset.index = String(i);
+    });
+
+    // フィルタ後の最初の画像をメインに設定
+    if (filterCategory && thumbnails.length > 0) {
+      // 既存のactive状態をリセット
+      document.querySelectorAll('.thumbnail-wrapper.active').forEach(function(el) {
+        el.classList.remove('active');
+      });
+      var firstVisible = thumbnails[0];
+      mainImage.src = firstVisible.dataset.src;
+      firstVisible.classList.add('active');
+      // totalカウンターをフィルタ後の件数に更新
+      var totalCounter = document.querySelector('.counter .total');
+      if (totalCounter) {
+        totalCounter.textContent = String(thumbnails.length).padStart(2, '0');
+      }
+    }
 
     let currentIndex = 0;
     let scrollPosition = 0;
