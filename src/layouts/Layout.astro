@@ -66,14 +66,6 @@ const { title, description } = Astro.props;
       <GlobalFooter />
     </div>
     <style is:global>
-      :root {
-        --ff-jp{
-  font-family: "Kaisei Opti", serif;
-        }
-        --ff-jp2{
-font-family: "Zen Kaku Gothic Antique", sans-serif;
-        }
-      }
       .is-drawerActive {
         overflow: hidden;
       }
@@ -88,9 +80,7 @@ font-family: "Zen Kaku Gothic Antique", sans-serif;
         opacity: 1;
         transition: all 0.5s ease-out;
       }
-      body{
-        font-family: var(--ff-jp);
-      }
+
       .p-transition {
         position: fixed;
         top: 0;

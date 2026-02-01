@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { client, type Photo, type Category } from '../../lib/microcms';
 import kumin from "@assets/img/kuu-icon.png"
-
+import frame from "@assets/img/photo-frame.png"
 export async function getStaticPaths() {
   const response = await client.getList<Photo>({
     endpoint: 'photo',
@@ -44,10 +44,16 @@ const createdAt = formatDate(photo.createdAt);
   </div>
   <div class="menu">
     <div class="menu-inner">
+      <img class="menu-frame" src={frame.src} alt="">
       <span class="menu-close"></span>
-      <p>一瞬の空気感を切り取れるような1枚を目指して、写真の練習に励んでいます。</p>
-      <p>『Photoire』＝写真で残す日々の記録です。</p>
-      <p>Web design/Graphic design/<br>Direction support</p>
+      <div class="menu-text-top">
+        <p>一瞬の空気感を切り取れるような1枚を目指して、写真の練習に励んでいます。</p>
+        <p>『Photoire』＝写真で残す日々の記録です。</p>
+      </div>
+      <div class="menu-text-bottom">
+        <p>Kumi Kaneko<br>金子 久美</p>
+        <p>Web design/Graphic design/<br>Direction support</p>
+      </div>
     </div>
   </div>
   <div class="menu-filter">
@@ -174,14 +180,26 @@ const createdAt = formatDate(photo.createdAt);
   }
   .header{
     position: fixed;
-    top: calc(54 / 16 * 1rem) ;
-    right: calc(48 / 16 * 1rem) ;
+    top: calc(48 / 16 * 1rem) ;
+    right: calc(23 / 16 * 1rem) ;
     z-index: 100;
     display: flex;
     align-items: center;
     flex-direction: row-reverse;
     column-gap: calc(24 / 16 * 1rem) ;;
   }
+    @media (min-width:768px) {
+      .header{
+        position: fixed;
+        top: calc(54 / 16 * 1rem) ;
+        right: calc(48 / 16 * 1rem) ;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        flex-direction: row-reverse;
+        column-gap: calc(24 / 16 * 1rem) ;;
+      }
+    }
   .header-icon{
     width: calc(40 / 16 * 1rem);
     cursor: pointer;
@@ -189,8 +207,10 @@ const createdAt = formatDate(photo.createdAt);
   .menu{
     position: fixed;
     top: 100px;
-    right: 48px;
-    width: 340px;
+    right: 8px;
+    width: calc(300 / 375 * 100cqw);
+    height: max-content;
+    aspect-ratio:300/537 ;
     color: #222;
     z-index: 10;
     opacity: 0;
@@ -198,6 +218,31 @@ const createdAt = formatDate(photo.createdAt);
     pointer-events: none;
     transition: opacity 0.4s ease-out, transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: grab;
+    background-color: #fff;
+  }
+    @media (min-width:768px) {
+       .menu{
+          top: 100px;
+          right: 48px;
+          width: calc(448 / 1440 * 100cqw);
+          aspect-ratio:448/537 ;
+       }
+    }
+  .menu-frame{
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: calc(300 / 375 * 100cqw);
+    display:none;
+  }
+  @media (min-width:768px) {
+    .menu-frame{
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: calc(400 / 1440 * 100cqw);
+      display:block;
+    }
   }
   .menu.is-active{
     opacity: 1;
@@ -209,8 +254,29 @@ const createdAt = formatDate(photo.createdAt);
     transition: none;
   }
   .menu-inner{
-    padding:calc(80 / 16 * 1rem);
-    background-color: #fff;
+    padding-block:calc(80 / 16 * 1rem);
+    padding-inline:calc(40 / 16 * 1rem);
+    font-weight: bold;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  @media (min-width:768px) {
+    .menu-inner{
+      padding:calc(80 / 16 * 1rem);
+    }
+  }
+  .menu-text-top p + p{
+    margin-top: calc(16 / 16 * 1rem);
+  }
+  .menu-text-bottom{
+    text-align: center;
+    margin-top: calc(60 / 16 * 1rem);
+  }
+  .menu-text-bottom p + p{
+    margin-top: calc(16 / 16 * 1rem);
   }
   /* 背景用キャンバス */
   #leaf-shadow-canvas {
@@ -313,6 +379,7 @@ const createdAt = formatDate(photo.createdAt);
     background: linear-gradient(69.03deg, rgba(255, 253, 253, 0.2) 0.81%, #040404 100%);
     opacity: 0.5;
   }
+
 </style>
 
 <script>
@@ -475,7 +542,7 @@ const createdAt = formatDate(photo.createdAt);
           closeMenu();
           menuFilter.style.left = '';
           menuFilter.style.top = '';
-          menuFilter.style.right = '48px';
+          menuFilter.style.right = '10%';
           menuFilter.classList.add('is-active');
           menuFilter.style.transform = 'translate(0, 0) rotate(3deg)';
         }

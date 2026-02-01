@@ -20,10 +20,8 @@
   --leading-base: 1.6;
   --leading-relaxed: 2;
   --leading-loose: 2.2;
-  --font-family-ja: "Zen Kaku Gothic New", sans-serif;
-  --font-family-en: "Jost", sans-serif;
-  --font-family-mincho: "Zen Old Mincho", serif;
-  --font-family-input: sans-serif;
+  --ff-jp: "Kaisei Opti", serif;
+  --ff-jp2: "Zen Kaku Gothic Antique", sans-serif;
   --tracking-negative-tight: -0.06em;
   --tracking-negative: -0.04em;
   --tracking-none: 0;
@@ -590,4 +588,7 @@
 [hidden]:not([hidden="until-found" i]) {
   /* Ensure that elements intended to be hidden are not displayed, improving clarity and layout control. */
   display: none !important;
+}
+body {
+  font-family: var(--ff-jp);
 }
