@@ -1,17 +1,70 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { client } from '../../lib/microcms';
-
+import { client,type Category  } from '../../lib/microcms';
+import framePc from "@assets/img/frame-pc.png";
+import frameSp from "@assets/img/frame-sp.png";
+import kumin from "@assets/img/kuu-icon.png";
+import frame from "@assets/img/photo-frame.png";
+import x_logo from "@assets/img/x_logo.png"
 // microCMSからphotoデータを取得
 const response = await client.getList({
   endpoint: 'photo',
+  queries: { limit: 100, orders: '-date' },
+});
+// microCMSからcategoryデータを取得
+const categoryResponse = await client.getList<Category>({
+  endpoint: 'category',
   queries: { limit: 100 },
 });
+
+const categories = categoryResponse.contents;
 
 const photos = response.contents;
 ---
 
 <Layout title="Photo Gallery" description="写真ギャラリー">
+    <div class="header">
+    <p class="header-icon">
+      <img src={kumin.src} alt="">
+    </p>
+    <p class="header-icon-filter">View</p>
+  </div>
+  <div class="menu">
+    <div class="menu-inner">
+      <img class="menu-frame" src={frame.src} alt="">
+      <span class="menu-close"></span>
+      <div class="menu-text-top">
+        <p>一瞬の空気感を切り取れるような1枚を目指して、写真の練習に励んでいます。</p>
+        <p>『Photoire』＝写真で残す日々の記録です。</p>
+      </div>
+      <div class="menu-text-bottom">
+        <p>Kumi Kaneko<br>金子 久美</p>
+        <p>Web design/Graphic design/<br>Direction support</p>
+      </div>
+      <div class="menu-text-btn">
+        <p class="menu-btn-x">
+          <a href="#">
+            <img src={x_logo.src} alt="">
+          </a>
+        </p>
+        <p class="menu-btn-contact">
+          <a href="#">お問い合わせ</a>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="menu-filter">
+    <div class="menu-filter-inner">
+      <span class="menu-close"></span>
+      <ul>
+        {categories.map((cat) => (
+          <li>
+            <a href={`/photo/?category=${cat.data}`}>{cat.data}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
   <main class="photo-gallery">
     <div class="counter">
       <span class="current">01</span> / <span class="total">{String(photos.length).padStart(2, '0')}</span>
@@ -37,12 +90,234 @@ const photos = response.contents;
           ))}
         </div>
       </div>
+    <picture class="thumbnail-frame">
+      <source srcset={framePc.src} media="(min-width: 768px)"  />
+      <img src={frameSp.src} alt="画像" />
+    </picture>
+
     </div>
 
 
   </main>
 
   <style is:global>
+    .menu-text-btn{
+      display: flex;
+      column-gap: calc(24 / 16 * 1rem);
+      margin-top: calc(60 / 1440 * 100cqw);
+    }
+    .menu-text-btn a{
+      border-radius:calc(8 / 16 * 1rem);
+      background-color: #202020;
+      color:#fff;
+      display:block;
+      line-height: 1;
+    }
+    .menu-btn-x a{
+      padding:calc(8 / 16 * 1rem);
+    }
+    .menu-btn-x img{
+      width: calc(14 / 16 * 1rem);
+    }
+    .menu-btn-contact a{
+      padding-block:calc(10 / 16 * 1rem);
+      padding-inline:calc(12 / 16 * 1rem);
+      font-size: calc(14 / 16 * 1rem);
+    }
+    .menu-close{
+      width: calc(20 / 16 * 1rem) ;
+      height: calc(20 / 16 * 1rem) ;
+      position: absolute;
+      top: calc(24 / 16 * 1rem) ;
+      right: calc(24 / 16 * 1rem) ;
+      cursor: pointer;
+    }
+    .menu-close::after,
+    .menu-close::before{
+      position: absolute;
+      margin: auto;
+      content: "";
+      width: 100%;
+      height: 1px;
+      background-color: #202020;
+    }
+    .menu-filter-inner .menu-close::after,
+    .menu-filter-inner .menu-close::before{
+      background-color: #fff;
+    }
+    .menu-close::after{
+      transform: rotate(45deg);
+    }
+    .menu-close::before{
+      transform: rotate(-45deg);
+    }
+    .header-icon-filter{
+      cursor: pointer;
+      line-height: 1;
+      background-color:#202020 ;
+      color: #fff;
+      padding-block: calc(12 / 16 * 1rem);
+      padding-inline: 1rem;
+      font-size: calc(14 / 16 * 1rem);
+    }
+    .header{
+      position: fixed;
+      top: calc(48 / 16 * 1rem) ;
+      right: calc(23 / 16 * 1rem) ;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      flex-direction: row-reverse;
+      column-gap: calc(24 / 16 * 1rem) ;
+    }
+    @media (min-width:768px) {
+      .header{
+        position: fixed;
+        top: calc(54 / 16 * 1rem) ;
+        right: calc(48 / 16 * 1rem) ;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        flex-direction: row-reverse;
+        column-gap: calc(24 / 16 * 1rem) ;
+      }
+    }
+    .header-icon{
+      width: calc(40 / 16 * 1rem);
+      cursor: pointer;
+    }
+    .menu{
+      position: fixed;
+      top: 100px;
+      right: 8px;
+      width: calc(300 / 375 * 100cqw);
+      height: max-content;
+      aspect-ratio:300/537 ;
+      color: #222;
+      z-index: 10;
+      opacity: 0;
+      transform: translate(200px, -300%) rotate(-15deg);
+      pointer-events: none;
+      transition: opacity 0.4s ease-out, transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: grab;
+      background-color: #fff;
+    }
+    @media (min-width:768px) {
+      .menu{
+        top: 100px;
+        right: 48px;
+        width: calc(448 / 1440 * 100cqw);
+        aspect-ratio:448/537 ;
+      }
+    }
+    .menu-frame{
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: calc(300 / 375 * 100cqw);
+      display:none;
+    }
+    @media (min-width:768px) {
+      .menu-frame{
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: calc(400 / 1440 * 100cqw);
+        display:block;
+      }
+    }
+    .menu.is-active{
+      opacity: 1;
+      transform: translate(0, 0) rotate(3deg);
+      pointer-events: auto;
+    }
+    .menu.is-dragging{
+      cursor: grabbing;
+      transition: none;
+    }
+    .menu-inner{
+      padding-block:calc(80 / 16 * 1rem);
+      padding-inline:calc(40 / 16 * 1rem);
+      font-weight: bold;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    @media (min-width:768px) {
+      .menu-inner{
+        padding:calc(80 / 16 * 1rem);
+      }
+    }
+    .menu-text-top{
+      font-size: calc(16 / 1440 * 100cqw);
+    }
+    .menu-text-top p + p{
+      margin-top: calc(16 / 16 * 1rem);
+    }
+    .menu-text-bottom{
+      text-align: center;
+      margin-top: calc(60 / 1440 * 100cqw);
+      font-size: calc(14 / 1440 * 100cqw);
+    }
+    .menu-text-bottom p + p{
+      margin-top: calc(16 / 16 * 1rem);
+    }
+    .menu-filter{
+      position: fixed;
+      top: 100px;
+      right: 48px;
+      width: 230px;
+      color: #222;
+      z-index: 10;
+      opacity: 0;
+      transform: translate(200px, -300%) rotate(-15deg);
+      pointer-events: none;
+      transition: opacity 0.4s ease-out, transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: grab;
+    }
+    .menu-filter.is-active{
+      opacity: 1;
+      transform: translate(0, 0) rotate(3deg);
+      pointer-events: auto;
+    }
+    .menu-filter.is-dragging{
+      cursor: grabbing;
+      transition: none;
+    }
+    .menu-filter-inner{
+      padding-block: calc(80 / 16 * 1rem);
+      padding-inline: calc(43 / 16 * 1rem);
+      background-color: rgba(32, 32, 32, .9);
+      text-align: center;
+    }
+    .menu-filter-inner a{
+      color: #fff;
+    }
+    .menu-filter-inner ul{
+      list-style: none;
+    }
+    .menu-filter-inner li +li{
+      margin-top: calc(24 / 16 * 1rem);
+    }
+    .thumbnail-frame{
+      position: absolute;
+      margin: auto;
+      display: grid;
+      place-items: center;
+      inset: 0;
+      bottom: 10%;
+      width: calc(360 / 375 * 100cqw);
+    }
+  @media (min-width:768px){
+    .thumbnail-frame{
+      bottom: 20%;
+      width: calc(900 / 1440 * 100cqw);
+      min-width: 600px;
+      max-width: 900px;
+    }
+  }
   .photo-gallery {
     position: relative;
     height: 100vh;
@@ -69,7 +344,6 @@ const photos = response.contents;
     display: flex;
     flex-direction: column;
     height: 100vh;
-    padding: 80px 30px 30px;
   }
 
   .photo-gallery .main-image-container {
@@ -80,7 +354,7 @@ const photos = response.contents;
     padding: 20px 100px;
     position: relative;
     overflow: hidden;
-    cursor: pointer;
+    z-index: 2;
   }
 
   .photo-gallery .main-image {
@@ -90,8 +364,14 @@ const photos = response.contents;
     height: auto;
     object-fit: contain;
     border-radius: 4px;
+    cursor: pointer;
   }
-
+@media (min-width:768px){
+  .photo-gallery .main-image {
+    max-width:440px ;
+    width: calc(440 / 1440 * 100cqw);
+  }
+}
   .photo-gallery .thumbnail-container {
     height: 120px;
     position: relative;
@@ -105,6 +385,7 @@ const photos = response.contents;
     position: absolute;
     left: 0;
     will-change: transform;
+    z-index: 2;
   }
 
   .photo-gallery .thumbnail-wrapper {
@@ -113,8 +394,8 @@ const photos = response.contents;
     position: relative;
     border-radius: 4px;
     overflow: hidden;
-    opacity: 0.4;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease,transform 0.3s ease;
+    opacity: .4;
   }
 
   .photo-gallery .thumbnail-wrapper:hover {
@@ -123,15 +404,16 @@ const photos = response.contents;
 
   .photo-gallery .thumbnail-wrapper.active {
     opacity: 1;
+    transform: scale(1.2);
   }
 
   .photo-gallery .thumbnail-wrapper.active::after {
     content: '';
     position: absolute;
     inset: 0;
-    border: 2px solid #333;
     border-radius: 4px;
     pointer-events: none;
+
   }
 
   .photo-gallery .thumbnail-wrapper img {
@@ -180,6 +462,15 @@ const photos = response.contents;
   }
 </style>
 
+<script>
+  import { initMenuController } from '../../assets/js/libs/MenuController';
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initMenuController());
+  } else {
+    initMenuController();
+  }
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" is:inline></script>
 
 <script is:inline data-swup-reload-script>
@@ -208,7 +499,6 @@ const photos = response.contents;
     }
 
     const mainImage = document.querySelector('.main-image');
-    const mainImageContainer = document.querySelector('.main-image-container');
     const thumbnailTrack = document.querySelector('.thumbnail-track');
     const thumbnailContainer = document.querySelector('.thumbnail-container');
     const currentCounter = document.querySelector('.counter .current');
@@ -361,7 +651,7 @@ const photos = response.contents;
         });
       });
 
-      mainImageContainer.addEventListener('click', () => {
+      mainImage.addEventListener('click', () => {
         const id = thumbnails[currentIndex].dataset.id;
         if (id) {
           window.location.href = '/photo/' + id;
