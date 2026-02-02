@@ -766,6 +766,14 @@ export class WebGL {
     let aperture = 1;
     const targetAperture = 0.15; // 0だとブレードが消えるので、少し開いた状態で止める
     const animationSpeed = 0.03; // ゆっくり閉じる
+    const scaleStart = 1.15; // 初期スケール（少し大きい状態から）
+    const scaleEnd = 0.7; // 最終スケール
+
+    const svg = shutterOverlay.querySelector("svg");
+    if (svg) {
+      svg.style.transition = "none";
+      svg.style.transform = `scale(${scaleStart})`;
+    }
 
     const animateShutter = () => {
       const diff = targetAperture - aperture;
@@ -775,6 +783,12 @@ export class WebGL {
         paths.forEach((path, i) => {
           path.setAttribute("d", createBladePath(i, aperture));
         });
+        // apertureの進行率に応じてスケールを補間
+        const progress = 1 - (aperture - targetAperture) / (1 - targetAperture);
+        const scale = scaleStart + (scaleEnd - scaleStart) * progress;
+        if (svg) {
+          svg.style.transform = `scale(${scale})`;
+        }
         requestAnimationFrame(animateShutter);
       } else {
         aperture = targetAperture;
@@ -782,12 +796,15 @@ export class WebGL {
         paths.forEach((path, i) => {
           path.setAttribute("d", createBladePath(i, aperture));
         });
+        if (svg) {
+          svg.style.transform = `scale(${scaleEnd})`;
+        }
         // シャッターが閉じた状態を維持するためインラインスタイルで固定
         shutterOverlay.style.opacity = "1";
         // シャッターが閉じた状態を少し見せてからページ遷移
         setTimeout(() => {
           onComplete();
-        }, 1000);
+        }, 100);
       }
     };
 
