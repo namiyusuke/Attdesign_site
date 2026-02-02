@@ -48,6 +48,15 @@ export class WebGL {
   // クリック時のアニメーション用
   private isAnimating = false;
 
+  // ホバーアニメーション用
+  private hoveredTile = { x: -9999, y: -9999 };
+  private hoverScale = 1.0;
+  private hoverTween: gsap.core.Tween | null = null;
+  // 離れるタイルのフェードアウト用
+  private prevHoveredTile = { x: -9999, y: -9999 };
+  private prevHoverScale = 1.0;
+  private prevHoverTween: gsap.core.Tween | null = null;
+
   // イントロアニメーション用
   private isIntro = true;
 
@@ -112,6 +121,10 @@ export class WebGL {
         u_atlasCols: { value: 4.0 },
         u_atlasRows: { value: 4.0 },
         u_bulge: { value: 1.0 },
+        u_hoverTile: { value: new THREE.Vector2(-9999, -9999) },
+        u_hoverScale: { value: 1.0 },
+        u_prevHoverTile: { value: new THREE.Vector2(-9999, -9999) },
+        u_prevHoverScale: { value: 1.0 },
       },
       vertexShader: `
         varying vec2 v_uv;
@@ -134,6 +147,10 @@ export class WebGL {
         uniform float u_atlasCols;
         uniform float u_atlasRows;
         uniform float u_bulge;
+        uniform vec2 u_hoverTile;
+        uniform float u_hoverScale;
+        uniform vec2 u_prevHoverTile;
+        uniform float u_prevHoverScale;
 
         // バルジ（魚眼）歪曲関数
         const float bulgeRadius = 0.5;
@@ -178,6 +195,15 @@ export class WebGL {
           float dynamicGap = u_gap * 0.09;
           float gap = baseGapUV + dynamicGap;
           vec2 scaledUV = (tileUV - 0.5) / (1.0 - gap * 2.0) + 0.5;
+
+          // ホバー中のタイルなら画像をスケール
+          bool isHovered = (tileIndex.x == u_hoverTile.x && tileIndex.y == u_hoverTile.y);
+          bool isPrevHovered = (tileIndex.x == u_prevHoverTile.x && tileIndex.y == u_prevHoverTile.y);
+          if (isHovered && u_hoverScale > 1.001) {
+            scaledUV = (scaledUV - 0.5) / u_hoverScale + 0.5;
+          } else if (isPrevHovered && u_prevHoverScale > 1.001) {
+            scaledUV = (scaledUV - 0.5) / u_prevHoverScale + 0.5;
+          }
 
           // タイル外かどうかチェック
           bool isOutside = scaledUV.x < 0.0 || scaledUV.x > 1.0 || scaledUV.y < 0.0 || scaledUV.y > 1.0;
@@ -338,6 +364,113 @@ export class WebGL {
     this.lastMousePos.y = e.clientY;
     this.velocity.x = 0;
     this.velocity.y = 0;
+    this.clearHover();
+  }
+
+  private screenToTile(clientX: number, clientY: number): { x: number; y: number } | null {
+    const rect = this.canvas.getBoundingClientRect();
+    const x = (clientX - rect.left) / rect.width;
+    const y = 1.0 - (clientY - rect.top) / rect.height;
+
+    const repeatX = this.material.uniforms.u_repeat.value.x;
+    const repeatY = this.material.uniforms.u_repeat.value.y;
+
+    const uv_x = x * repeatX + this.offset.x;
+    const uv_y = y * repeatY + this.offset.y;
+
+    const tileIndexX = Math.floor(uv_x);
+    const tileIndexY = Math.floor(uv_y);
+
+    // ギャップ内かチェック
+    const tileUV_x = uv_x - tileIndexX;
+    const tileUV_y = uv_y - tileIndexY;
+    const gap = this.currentGap * 0.09;
+    const scaledUV_x = (tileUV_x - 0.5) / (1.0 - gap * 2.0) + 0.5;
+    const scaledUV_y = (tileUV_y - 0.5) / (1.0 - gap * 2.0) + 0.5;
+
+    if (scaledUV_x < 0.0 || scaledUV_x > 1.0 || scaledUV_y < 0.0 || scaledUV_y > 1.0) {
+      return null;
+    }
+
+    return { x: tileIndexX, y: tileIndexY };
+  }
+
+  private animatePrevOut(): void {
+    // 前のtweenをキャンセル
+    if (this.prevHoverTween) this.prevHoverTween.kill();
+
+    // 現在のホバータイルとスケールをprevに引き継ぐ
+    this.prevHoveredTile = { ...this.hoveredTile };
+    this.prevHoverScale = this.hoverScale;
+    this.material.uniforms.u_prevHoverTile.value.set(this.prevHoveredTile.x, this.prevHoveredTile.y);
+    this.material.uniforms.u_prevHoverScale.value = this.prevHoverScale;
+
+    // prevをスケールダウンアニメーション
+    this.prevHoverTween = gsap.to(this, {
+      prevHoverScale: 1.0,
+      duration: 0.3,
+      ease: "power2.out",
+      onUpdate: () => {
+        this.material.uniforms.u_prevHoverScale.value = this.prevHoverScale;
+      },
+      onComplete: () => {
+        this.prevHoveredTile = { x: -9999, y: -9999 };
+        this.material.uniforms.u_prevHoverTile.value.set(-9999, -9999);
+      },
+    });
+  }
+
+  private updateHover(clientX: number, clientY: number): void {
+    if (this.isAnimating || this.isIntro || this.isDragging) {
+      this.clearHover();
+      return;
+    }
+
+    const tile = this.screenToTile(clientX, clientY);
+    if (!tile) {
+      this.clearHover();
+      return;
+    }
+
+    // 同じタイルなら何もしない
+    if (tile.x === this.hoveredTile.x && tile.y === this.hoveredTile.y) return;
+
+    // 既にホバー中のタイルがあればprevとしてフェードアウト
+    if (this.hoveredTile.x !== -9999) {
+      this.animatePrevOut();
+    }
+
+    // 現在のtweenをキャンセル
+    if (this.hoverTween) this.hoverTween.kill();
+
+    // 新しいタイルをスケールアップ
+    this.hoverScale = 1.0;
+    this.material.uniforms.u_hoverScale.value = 1.0;
+    this.hoveredTile = tile;
+    this.material.uniforms.u_hoverTile.value.set(tile.x, tile.y);
+
+    this.hoverTween = gsap.to(this, {
+      hoverScale: 1.07,
+      duration: 0.4,
+      ease: "power2.out",
+      onUpdate: () => {
+        this.material.uniforms.u_hoverScale.value = this.hoverScale;
+      },
+    });
+  }
+
+  private clearHover(): void {
+    if (this.hoveredTile.x === -9999) return;
+
+    // 現在のホバーをprevに移してフェードアウト
+    if (this.hoverTween) this.hoverTween.kill();
+    this.animatePrevOut();
+
+    // 現在のホバーをリセット
+    this.hoveredTile = { x: -9999, y: -9999 };
+    this.hoverScale = 1.0;
+    this.material.uniforms.u_hoverTile.value.set(-9999, -9999);
+    this.material.uniforms.u_hoverScale.value = 1.0;
   }
 
   private onMouseMove(e: MouseEvent): void {
@@ -353,6 +486,8 @@ export class WebGL {
 
       this.lastMousePos.x = e.clientX;
       this.lastMousePos.y = e.clientY;
+    } else {
+      this.updateHover(e.clientX, e.clientY);
     }
   }
 
@@ -362,6 +497,7 @@ export class WebGL {
 
   private onMouseLeave(): void {
     this.isDragging = false;
+    this.clearHover();
   }
 
   private onTouchStart(e: TouchEvent): void {
