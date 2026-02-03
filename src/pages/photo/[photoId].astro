@@ -109,9 +109,17 @@ const createdAt = formatDate(photo.createdAt);
           </p>
         }
         {photo.category?.data && <p class="photo-category">{photo.category.data}</p>}
+        <p class="back-btn">
+          <a href="/photo/">
+            一覧へ戻る
+          </a>
+        </p>
       </div>
       </div>
     </div>
+    <p class="copy-right">
+        ©Photoire 2026
+    </p>
   </main>
 </Layout>
 
@@ -379,6 +387,17 @@ const createdAt = formatDate(photo.createdAt);
     font-family: var(--ff-jp2);
     font-weight: 400;
   }
+  .back-btn{
+    margin-top: calc(80 / 16 * 1rem) ;
+    }
+  .back-btn a{
+    display: inline-block;
+    padding-block: calc(12 / 16 * 1rem) ;
+    padding-inline: calc(20 / 16 * 1rem) ;
+    font-size: calc(14 / 16 * 1rem) ;
+    background-color: #202020;
+    color: #fff;
+  }
   @media (min-width:768px) {
   .photo-detail-body{
     display: grid;
@@ -434,6 +453,15 @@ const createdAt = formatDate(photo.createdAt);
   .time-overlay.is-night {
     background: linear-gradient(69.03deg, rgba(255, 253, 253, 0.2) 0.81%, #040404 100%);
     opacity: 0.5;
+  }
+  .copy-right{
+    position: absolute;
+    bottom: calc(24 / 16 * 1rem) ;
+    inset-inline: 0;
+    text-align: center;
+    margin-inline: auto;
+    font-size: calc(14 / 16 * 1rem) ;
+    letter-spacing: .08em;
   }
 
 </style>
