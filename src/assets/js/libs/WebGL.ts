@@ -666,7 +666,7 @@ export class WebGL {
       img.style.height = `${finalHeight}px`;
     });
 
-    // 写真アニメーション完了後にシャッターアニメーション開始
+    // 写真アニメーション完了後にシャッターアニメーション
     setTimeout(() => {
       this.playShutterAnimation(() => {
         // シャッター閉じた後にページ遷移
