@@ -20,8 +20,8 @@
   --leading-base: 1.6;
   --leading-relaxed: 2;
   --leading-loose: 2.2;
-  --ff-jp: "Kaisei Opti", serif;
-  --ff-jp2: "Zen Kaku Gothic Antique", sans-serif;
+  --ff-jp: "Zen Kaku Gothic Antique", sans-serif;
+  --ff-jp2: "Kaisei Opti", serif;
   --tracking-negative-tight: -0.06em;
   --tracking-negative: -0.04em;
   --tracking-none: 0;
@@ -591,4 +591,5 @@
 }
 body {
   font-family: var(--ff-jp);
+  font-weight: 400;
 }

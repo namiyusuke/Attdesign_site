@@ -100,7 +100,7 @@ const createdAt = formatDate(photo.createdAt);
         }
 
         {photo.text &&
-            <p class="photo-detail-text" set:html={photo.text} />
+            <div class="photo-detail-text" set:html={photo.text} />
         }
 
         {photo.camera &&
@@ -156,6 +156,9 @@ const createdAt = formatDate(photo.createdAt);
     padding-block: calc(12 / 16 * 1rem);
     padding-inline: 1rem;
     font-size: calc(14 / 16 * 1rem);
+    font-family: var(--ff-jp2);
+    font-weight: 700;
+    letter-spacing: .16em;
   }
   .menu-filter{
     position: fixed;
@@ -169,6 +172,8 @@ const createdAt = formatDate(photo.createdAt);
     pointer-events: none;
     transition: opacity 0.4s ease-out, transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: grab;
+    font-family: var(--ff-jp2);
+    font-weight: 700;
   }
   .menu-filter.is-active{
     opacity: 1;
@@ -254,6 +259,8 @@ const createdAt = formatDate(photo.createdAt);
     transition: opacity 0.4s ease-out, transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: grab;
     background-color: #fff;
+    font-family: var(--ff-jp2);
+    font-weight: 700;
   }
     @media (min-width:768px) {
        .menu{
@@ -339,9 +346,10 @@ const createdAt = formatDate(photo.createdAt);
   .photo-detail-date{
     font-size:calc(16 / 16 * 1rem) ;
     margin-bottom: calc(20 / 16 * 1rem) ;
+    font-weight: 500;
   }
   .photo-detail-camera{
-    margin-bottom: calc(40 / 16 * 1rem) ;
+    margin-block: calc(40 / 16 * 1rem) ;
   }
   .photo-detail__image {
     position: relative;
@@ -351,6 +359,10 @@ const createdAt = formatDate(photo.createdAt);
   }
 .photo-detail-text{
   margin-top:calc(40 / 16 * 1rem) ;
+  font-weight: 400;
+}
+.photo-detail-text p + p{
+  margin-top:1rem;
 }
   .photo-detail__image canvas {
     position: absolute !important;
@@ -363,7 +375,10 @@ const createdAt = formatDate(photo.createdAt);
   .photo-detail-content{
     margin-top:calc(84 / 16 * 1rem)
   }
-
+  .photo-detail-content h1{
+    font-family: var(--ff-jp2);
+    font-weight: 400;
+  }
   @media (min-width:768px) {
   .photo-detail-body{
     display: grid;
@@ -382,6 +397,8 @@ const createdAt = formatDate(photo.createdAt);
     line-height: 1;
     padding: calc(8 / 16 * 1rem) calc(12 / 16 * 1rem);
     font-size: calc(14 / 16 * 1rem);
+    font-family: var(--ff-jp2);
+    font-weight: 700;
   }
 
   /* 時間帯オーバーレイ */

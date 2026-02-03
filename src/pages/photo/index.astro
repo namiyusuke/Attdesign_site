@@ -159,6 +159,9 @@ const photos = response.contents;
       padding-block: calc(12 / 16 * 1rem);
       padding-inline: 1rem;
       font-size: calc(14 / 16 * 1rem);
+      font-family: var(--ff-jp2);
+      font-weight: 700;
+      letter-spacing: .16em;
     }
     .header{
       position: fixed;
@@ -201,6 +204,8 @@ const photos = response.contents;
       transition: opacity 0.4s ease-out, transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
       cursor: grab;
       background-color: #fff;
+      font-family: var(--ff-jp2);
+      font-weight: 700;
     }
     @media (min-width:768px) {
       .menu{
@@ -276,6 +281,9 @@ const photos = response.contents;
       pointer-events: none;
       transition: opacity 0.4s ease-out, transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
       cursor: grab;
+      font-family: var(--ff-jp2);
+      font-weight: 700;
+
     }
     .menu-filter.is-active{
       opacity: 1;
