@@ -48,6 +48,9 @@ export class WebGL {
   // クリック時のアニメーション用
   private isAnimating = false;
 
+  // タップ判定用
+  private touchStartPos = { x: 0, y: 0 };
+
   // ホバーアニメーション用
   private hoveredTile = { x: -9999, y: -9999 };
   private hoverScale = 1.0;
@@ -68,7 +71,7 @@ export class WebGL {
   private boundOnMouseLeave: () => void;
   private boundOnTouchStart: (e: TouchEvent) => void;
   private boundOnTouchMove: (e: TouchEvent) => void;
-  private boundOnTouchEnd: () => void;
+  private boundOnTouchEnd: (e: TouchEvent) => void;
   private boundOnWheel: (e: WheelEvent) => void;
   private boundOnClick: (e: MouseEvent) => void;
 
@@ -507,6 +510,8 @@ export class WebGL {
     const touch = e.touches[0];
     this.lastMousePos.x = touch.clientX;
     this.lastMousePos.y = touch.clientY;
+    this.touchStartPos.x = touch.clientX;
+    this.touchStartPos.y = touch.clientY;
     this.velocity.x = 0;
     this.velocity.y = 0;
   }
@@ -529,8 +534,23 @@ export class WebGL {
     }
   }
 
-  private onTouchEnd(): void {
+  private onTouchEnd(e: TouchEvent): void {
     this.isDragging = false;
+
+    // タップ判定: ドラッグ距離が小さければタップとみなす
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - this.touchStartPos.x;
+    const dy = touch.clientY - this.touchStartPos.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < 10) {
+      // MouseEventを合成してonClickに渡す
+      const syntheticEvent = new MouseEvent("click", {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+      });
+      this.onClick(syntheticEvent);
+    }
   }
 
   private onWheel(e: WheelEvent): void {

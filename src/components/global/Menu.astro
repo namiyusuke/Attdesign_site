@@ -54,6 +54,7 @@ const categories = categoryResponse.contents;
             <a href={`/photo/?category=${cat.data}`}>{cat.data}</a>
           </li>
         ))}
+        <li> <a href={`/photo/`}>daily</a></li>
       </ul>
     </div>
   </div>
@@ -65,13 +66,17 @@ const categories = categoryResponse.contents;
       position: relative;
       z-index: 10;
     }
-    .menu-text-btn a{
-      border-radius:calc(8 / 16 * 1rem);
-      background-color: #202020;
-      color:#fff;
-      display:block;
-      line-height: 1;
-    }
+   .menu-text-btn a{
+    border-radius:calc(8 / 16 * 1rem);
+    background-color: #202020;
+    color:#fff;
+    display:block;
+    line-height: 1;
+    transition: transform .4s ease;
+  }
+   .menu-text-btn a:hover{
+    transform: scale(1.1);
+   }
     .menu-btn-x a{
       padding:calc(8 / 16 * 1rem);
     }
@@ -274,6 +279,9 @@ const categories = categoryResponse.contents;
     .menu-filter-inner li +li{
       margin-top: calc(24 / 16 * 1rem);
     }
+    a.current{
+      opacity: .4;
+    }
   </style>
 <script>
   import { initMenuController } from '../../assets/js/libs/MenuController';
@@ -282,4 +290,17 @@ const categories = categoryResponse.contents;
   } else {
     initMenuController();
   }
+
+  // フィルターメニューのcurrentクラス付与
+  const currentCategory = new URLSearchParams(window.location.search).get('category');
+  const filterLinks = document.querySelectorAll('.menu-filter-inner a');
+  filterLinks.forEach((link) => {
+    const href = link.getAttribute('href') || '';
+    const linkCategory = new URLSearchParams(href.split('?')[1] || '').get('category');
+    if (currentCategory && linkCategory === currentCategory) {
+      link.classList.add('current');
+    } else if (!currentCategory && href === '/photo/') {
+      link.classList.add('current');
+    }
+  });
 </script>

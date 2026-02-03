@@ -2,8 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { client, type Photo, type Category } from '../../lib/microcms';
 import kumin from "@assets/img/kuu-icon.png"
-import frame from "@assets/img/photo-frame.png"
-import x_logo from "@assets/img/x_logo.png"
+import Menu from "../../components/global/Menu.astro";
 export async function getStaticPaths() {
   const response = await client.getList<Photo>({
     endpoint: 'photo',
@@ -43,42 +42,7 @@ const createdAt = formatDate(photo.createdAt);
     </p>
     <p class="header-icon-filter">View</p>
   </div>
-  <div class="menu">
-    <div class="menu-inner">
-      <img class="menu-frame" src={frame.src} alt="">
-      <span class="menu-close"></span>
-      <div class="menu-text-top">
-        <p>一瞬の空気感を切り取れるような1枚を目指して、写真の練習に励んでいます。</p>
-        <p>『Photoire』＝写真で残す日々の記録です。</p>
-      </div>
-      <div class="menu-text-bottom">
-        <p>Kumi Kaneko<br>金子 久美</p>
-        <p>Web design/Graphic design/<br>Direction support</p>
-      </div>
-      <div class="menu-text-btn">
-        <p class="menu-btn-x">
-          <a href="#">
-            <img src={x_logo.src} alt="">
-          </a>
-        </p>
-        <p class="menu-btn-contact">
-          <a href="#">お問い合わせ</a>
-        </p>
-      </div>
-    </div>
-  </div>
-  <div class="menu-filter">
-    <div class="menu-filter-inner">
-      <span class="menu-close"></span>
-      <ul>
-        {categories.map((cat) => (
-          <li>
-            <a href={`/photo/?category=${cat.data}`}>{cat.data}</a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </div>
+  <Menu />
   <!-- 背景用キャンバス（葉の影エフェクト） -->
   <canvas id="leaf-shadow-canvas"></canvas>
   <!-- 時間帯に応じた背景オーバーレイ -->
@@ -136,7 +100,11 @@ const createdAt = formatDate(photo.createdAt);
     color:#fff;
     display:block;
     line-height: 1;
+    transition: transform .4s ease;
   }
+   .menu-text-btn a:hover{
+    transform: scale(1.1);
+   }
   .menu-btn-x a{
     padding:calc(8 / 16 * 1rem);
   }
@@ -199,8 +167,13 @@ const createdAt = formatDate(photo.createdAt);
     text-align: center;
   }
    .menu-filter-inner a{
-    color: #fff;
-   }
+      color: #fff;
+      display: block;
+      transition: transform .4s ease;
+    }
+    .menu-filter-inner a:hover{
+      transform: scale(1.2);
+    }
   .menu-filter-inner ul{
     list-style: none;
   }
