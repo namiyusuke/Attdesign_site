@@ -51,6 +51,34 @@ const photos = response.contents;
     </div>
 
 
+  <!-- Camera Stalker SVG -->
+  <svg class="camera-stalker" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <mask id="irisMask">
+        <rect width="512" height="512" fill="white"/>
+        <circle cx="256" cy="286.34" class="iris-hole" r="54" fill="black"/>
+      </mask>
+    </defs>
+    <g fill="#4B4B4B">
+      <path d="M256,198.494c-24.037,0.008-45.646,9.768-61.446,25.68c-15.76,15.94-25.496,37.826-25.519,62.17
+        c0.023,24.361,9.759,46.238,25.519,62.151c15.8,15.931,37.409,25.698,61.446,25.698c24.009,0,45.642-9.767,61.432-25.698
+        c15.778-15.912,25.514-37.79,25.523-62.151c-0.008-24.344-9.754-46.23-25.523-62.17C301.642,208.262,280.009,198.502,256,198.494z
+        M256,340.506c-29.657,0-53.689-24.235-53.689-54.163c0-29.919,24.032-54.163,53.689-54.163c29.657,0,53.688,24.244,53.688,54.163
+        C309.688,316.272,285.657,340.506,256,340.506z"/>
+      <path d="M496.774,135.592c-9.344-9.461-22.509-15.416-36.886-15.416h-56.404c-4.545,0.018-8.783-2.702-10.734-7.093
+        l-16.898-37.826c-8.358-18.741-26.936-30.931-47.557-30.931H183.706c-20.616,0-39.199,12.19-47.576,30.931l-16.88,37.826
+        c-1.952,4.391-6.195,7.111-10.731,7.093H52.112c-14.372,0-27.56,5.954-36.922,15.416C5.824,145.026,0,158.21,0,172.569v242.73
+        c0,14.368,5.824,27.543,15.19,36.976c9.361,9.462,22.554,15.416,36.922,15.398h224.554h183.222
+        c14.378,0.018,27.543-5.937,36.886-15.398c9.407-9.433,15.226-22.608,15.226-36.976v-242.73
+        C512,158.21,506.181,145.008,496.774,135.592z M339.458,370.334c-21.276,21.515-50.887,34.89-83.458,34.89
+        c-32.585,0-62.182-13.374-83.463-34.89c-21.321-21.46-34.523-51.262-34.504-83.991c-0.019-32.729,13.184-62.504,34.504-84
+        c21.28-21.498,50.874-34.889,83.463-34.862c32.571-0.027,62.182,13.364,83.458,34.862c21.321,21.497,34.532,51.271,34.505,84
+        C373.99,319.072,360.779,348.874,339.458,370.334z M461.967,214.542h-35.793V178.74h35.793V214.542z"/>
+    </g>
+    <circle class="lens-glass" cx="256" cy="286.34" r="50" fill="#1e3048"/>
+    <circle cx="256" cy="286.34" r="54" fill="#4B4B4B" mask="url(#irisMask)"/>
+  </svg>
+
   </main>
 
   <style is:global>
@@ -202,6 +230,46 @@ const photos = response.contents;
 
 
 
+  /* ── Camera Stalker ── */
+  .camera-stalker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 50px;
+    pointer-events: none;
+    z-index: 9999;
+    will-change: transform;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .camera-stalker.is-visible {
+    opacity: 1;
+  }
+
+  @keyframes iris {
+    0%, 40%   { r: 54; }
+    48%       { r: 0; }
+    52%       { r: 0; }
+    60%, 100% { r: 54; }
+  }
+
+  .iris-hole {
+    animation: iris 1.6s cubic-bezier(0.7, 0, 0.3, 1) infinite;
+  }
+
+  @keyframes glass {
+    0%, 40%   { opacity: 0.35; }
+    48%       { opacity: 0; }
+    52%       { opacity: 0; }
+    60%, 100% { opacity: 0.35; }
+  }
+
+  .lens-glass {
+    animation: glass 1.6s cubic-bezier(0.7, 0, 0.3, 1) infinite;
+  }
+
   @media (max-width: 768px) {
     .photo-gallery .gallery {
       padding: 60px 15px 20px;
@@ -235,6 +303,28 @@ const photos = response.contents;
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" is:inline></script>
+
+<script is:inline>
+  (function() {
+    const stalker = document.querySelector('.camera-stalker');
+    const target = document.querySelector('.main-image');
+    if (!stalker || !target) return;
+
+    document.addEventListener('mousemove', function(e) {
+      stalker.style.transform = 'translate(' + (e.clientX - 40) + 'px, ' + (e.clientY - 40) + 'px)';
+    });
+
+    target.addEventListener('mouseenter', function() {
+      stalker.classList.add('is-visible');
+      target.style.cursor = 'none';
+    });
+
+    target.addEventListener('mouseleave', function() {
+      stalker.classList.remove('is-visible');
+      target.style.cursor = 'pointer';
+    });
+  })();
+</script>
 
 <script is:inline data-swup-reload-script>
   (function() {
