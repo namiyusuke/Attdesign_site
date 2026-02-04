@@ -120,7 +120,7 @@ export class WebGL {
         u_gap: { value: 0.0 },
         u_baseGap: { value: 2.0 }, // 固定の隙間（ピクセル）
         u_depth: { value: 0.0 },
-        u_imageCount: { value: 16.0 },
+        u_imageCount: { value: 25.0 },
         u_atlasCols: { value: 4.0 },
         u_atlasRows: { value: 4.0 },
         u_bulge: { value: 1.0 },
@@ -608,7 +608,7 @@ export class WebGL {
 
     // XとY座標を組み合わせて決定（シェーダーと同じ計算）
     const calcValue = tileIndexX + tileIndexY * ATLAS_COLS;
-    const imageIndex = ((calcValue % 16) + 16) % 16;
+    const imageIndex = ((calcValue % 25) + 25) % 25;
 
     // 遷移先URLとimage URLを取得
     const targetUrl = this.imageURLs[imageIndex];

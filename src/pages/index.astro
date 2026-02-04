@@ -5,7 +5,7 @@ import { client, type Photo } from '../lib/microcms';
 // microCMSからphotoデータを取得
 const response = await client.getList<Photo>({
   endpoint: 'photo',
-  queries: { limit: 16 },
+  queries: { limit: 25 },
 });
 
 const photos = response.contents;

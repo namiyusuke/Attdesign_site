@@ -4,6 +4,7 @@ import SwupHeadPlugin from "@swup/head-plugin";
 import SwupScriptsPlugin from "@swup/scripts-plugin";
 import { BulgeImage } from "./BulgeImage";
 import { LeafShadow } from "./LeafShadow";
+import { initMenuController } from "./MenuController";
 
 // グローバルにインスタンスを保持
 let bulgeInstance = null;
@@ -111,6 +112,7 @@ export default function swupFunc() {
     initBulgeImage();
     initLeafShadow();
     updateTimeOverlay();
+    initMenuController();
   });
 
   // 初回ロード時もチェック
