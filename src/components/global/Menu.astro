@@ -2,6 +2,7 @@
 import { client,type Category  } from '../../lib/microcms';
 import kumin from "@assets/img/kuu-icon.png";
 import frame from "@assets/img/photo-frame.png";
+import frameSp from "@assets/img/photo-frame-sp.png";
 import x_logo from "@assets/img/x_logo.png"
 // microCMSからcategoryデータを取得
 const categoryResponse = await client.getList<Category>({
@@ -23,15 +24,18 @@ const categories = categoryResponse.contents;
   </div>
   <div class="menu">
     <div class="menu-inner">
-      <img class="menu-frame" src={frame.src} alt="">
+      <picture class="menu-frame">
+        <source srcset={frameSp.src} media="(max-width: 767px)" />
+        <img src={frame.src} alt="" />
+      </picture>
       <span class="menu-close"></span>
       <div class="menu-text-top">
         <p>一瞬の空気感を切り取れるような1枚を目指して、写真の練習に励んでいます。</p>
         <p>『Photoire』＝写真で残す日々の記録です。</p>
       </div>
       <div class="menu-text-bottom">
-        <p>Kumi Kaneko<br>金子 久美</p>
-        <p>Web design/Graphic design/<br>Direction support</p>
+        <p class="menu-text-bottom-jp">Kumi Kaneko<br>金子 久美</p>
+        <p class="menu-text-bottom-en">Web design/Graphic design/<br>Direction support</p>
       </div>
       <div class="menu-text-btn">
         <p class="menu-btn-x">
@@ -62,10 +66,19 @@ const categories = categoryResponse.contents;
     .menu-text-btn{
       display: flex;
       column-gap: calc(24 / 16 * 1rem);
-      margin-top: calc(60 / 1440 * 100cqw);
+      margin-top: calc(60 / 16 * 1rem);
       position: relative;
       z-index: 10;
     }
+     @media (min-width:768px) {
+      .menu-text-btn{
+        display: flex;
+        column-gap: calc(24 / 16 * 1rem);
+        margin-top: calc(60 / 1440 * 100cqw);
+        position: relative;
+        z-index: 10;
+      }
+     }
    .menu-text-btn a{
     border-radius:calc(8 / 16 * 1rem);
     background-color: #202020;
@@ -128,6 +141,10 @@ const categories = categoryResponse.contents;
       letter-spacing: .16em;
       transition: color .4s ease,background-color .4s ease;
     }
+  .header-icon-filter:hover{
+      background-color: #fff;
+      color: #202020;
+   }
     .header{
       position: fixed;
       top: calc(48 / 16 * 1rem) ;
@@ -184,16 +201,17 @@ const categories = categoryResponse.contents;
       position: absolute;
       inset: 0;
       margin: auto;
-      width: calc(300 / 375 * 100cqw);
-      display:none;
+      width: calc(260 / 375 * 100cqw);
+      display: grid;
+      place-items: center;
     }
     @media (min-width:768px) {
       .menu-frame{
         position: absolute;
         inset: 0;
+        bottom: 1f0%;
         margin: auto;
         width: calc(400 / 1440 * 100cqw);
-        display:block;
       }
     }
     .menu.is-active{
@@ -221,16 +239,41 @@ const categories = categoryResponse.contents;
       }
     }
     .menu-text-top{
-      font-size: calc(16 / 1440 * 100cqw);
+      font-size: 1rem;
     }
+      @media (min-width:768px) {
+        .menu-text-top{
+          font-size: calc(16 / 1440 * 100cqw);
+        }
+      }
     .menu-text-top p + p{
       margin-top: calc(16 / 16 * 1rem);
     }
     .menu-text-bottom{
       text-align: center;
+      margin-top: calc(60 / 16 * 1rem);
+      font-size:  calc(14 / 16 * 1rem);
+    }
+      @media (min-width:768px) {
+        .menu-text-bottom{
+      text-align: center;
+      margin-top: calc(60 / 1440 * 100cqw);
+      font-size:  calc(14 / 16 * 1rem);
+    }
+      }
+    .menu-text-bottom-en{
+      font-size: calc(12 / 16 * 1rem);
+    }
+     @media (min-width:768px) {
+    .menu-text-bottom{
+      text-align: center;
       margin-top: calc(60 / 1440 * 100cqw);
       font-size: calc(14 / 1440 * 100cqw);
     }
+    .menu-text-bottom-en{
+      font-size: calc(14 / 16 * 1rem);
+    }
+     }
     .menu-text-bottom p + p{
       margin-top: calc(16 / 16 * 1rem);
     }
