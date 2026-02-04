@@ -87,8 +87,11 @@ export class LeafShadow {
       }
     `;
 
+    const isMobile = window.innerWidth <= 768;
+    const shadowPath = isMobile ? '/shadow-sp.png' : '/shadow.png';
+
     const textureLoader = new THREE.TextureLoader();
-    textureLoader.load('/shadow.png', (texture) => {
+    textureLoader.load(shadowPath, (texture) => {
       texture.minFilter = THREE.LinearFilter;
       texture.magFilter = THREE.LinearFilter;
 

@@ -133,7 +133,7 @@ const categories = categoryResponse.contents;
       line-height: 1;
       background-color:#202020 ;
       color: #fff;
-      padding-block: calc(12 / 16 * 1rem);
+      padding-block: calc(8 / 16 * 1rem);
       padding-inline: 1rem;
       font-size: calc(14 / 16 * 1rem);
       font-family: var(--ff-jp2);
@@ -141,13 +141,18 @@ const categories = categoryResponse.contents;
       letter-spacing: .16em;
       transition: color .4s ease,background-color .4s ease;
     }
+    @media (min-width:768px) {
+      .header-icon-filter{
+        padding-block: calc(12 / 16 * 1rem);
+      }
+    }
   .header-icon-filter:hover{
       background-color: #fff;
       color: #202020;
    }
     .header{
       position: fixed;
-      top: calc(48 / 16 * 1rem) ;
+      top: calc(32 / 16 * 1rem) ;
       right: calc(23 / 16 * 1rem) ;
       z-index: 100;
       display: flex;
@@ -173,7 +178,7 @@ const categories = categoryResponse.contents;
     }
     .menu{
       position: fixed;
-      top: 100px;
+      top: calc(60 / 16 * 1rem);
       right: 8px;
       width: calc(300 / 375 * 100cqw);
       height: max-content;
@@ -191,8 +196,8 @@ const categories = categoryResponse.contents;
     }
     @media (min-width:768px) {
       .menu{
-        top: 100px;
-        right: 48px;
+        top: calc(100 / 16 * 1rem);
+        right: calc(48 / 16 * 1rem);
         width: calc(448 / 1440 * 100cqw);
         aspect-ratio:448/537 ;
       }

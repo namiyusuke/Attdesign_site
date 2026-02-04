@@ -17,14 +17,12 @@ const photos = response.contents;
 <Layout title="Photo Gallery" description="写真ギャラリー">
   <Menu />
   <main class="photo-gallery">
-    <div class="counter">
-      <span class="current">01</span> / <span class="total">{String(photos.length).padStart(2, '0')}</span>
-    </div>
-    <p class="category">
-      daily
-    </p>
+
     <div class="gallery">
       <div class="main-image-container">
+        <p class="category">
+          daily
+        </p>
         <img class="main-image" src={photos[0]?.image.url} alt="Gallery Image" />
       </div>
       <div class="thumbnail-container">
@@ -87,23 +85,29 @@ const photos = response.contents;
       font-weight: 400;
       position: absolute;
       inset-inline: 0;
-      /* top: min(calc(80 / 1440 * 100cqw),80px); */
-      top: calc(80 / 16 * 1rem);
       margin-inline: auto;
       text-align: center;
+      bottom: calc(100% + 24px);
+    }
+     @media (min-width:768px){
+  .category{
+    bottom: calc(100% + 40px);
+  }
     }
     .thumbnail-frame{
       position: absolute;
       margin: auto;
-      display: grid;
       place-items: center;
       inset: 0;
       bottom: 10%;
       width: calc(360 / 375 * 100cqw);
+      display: none;
     }
   @media (min-width:768px){
     .thumbnail-frame{
-      bottom: 20%;
+      display: grid;
+      top: calc(-40 / 16 * 1rem);
+      bottom:16%;
       width: calc(900 / 1440 * 100cqw);
       min-width: 600px;
       max-width: 900px;
@@ -116,36 +120,27 @@ const photos = response.contents;
     background: #f5f4f0;
   }
 
-  .photo-gallery .counter {
-    position: fixed;
-    right: 30px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 12px;
-    color: #999;
-    z-index: 100;
-  }
-
-  .photo-gallery .counter .current {
-    color: #333;
-    font-weight: 500;
-  }
-
-  .photo-gallery .gallery {
+.photo-gallery .gallery {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    justify-content: center;
+    margin-top: calc(10 / 16 * 1rem);
+    row-gap: calc(40 / 16 * 1rem);
   }
-
+@media (min-width:768px){
+  .photo-gallery .gallery {
+    row-gap: min(calc(80 / 1440 * 100cqw),80px);
+  }
+}
   .photo-gallery .main-image-container {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px 100px;
     position: relative;
-    overflow: hidden;
     z-index: 2;
+    width: calc(320 / 375 * 100cqw);
+    margin-inline: auto;
   }
 
   .photo-gallery .main-image {
@@ -164,11 +159,18 @@ const photos = response.contents;
   }
 }
   .photo-gallery .thumbnail-container {
-    height: 120px;
+    height: 60px;
     position: relative;
     overflow: hidden;
   }
+@media (min-width:768px){
+  .photo-gallery .thumbnail-container {
+    height: min(calc(120 / 1440 * 100cqw),120px);
 
+    position: relative;
+    overflow: hidden;
+  }
+}
   .photo-gallery .thumbnail-track {
     display: flex;
     gap: 12px;
@@ -271,24 +273,8 @@ const photos = response.contents;
   }
 
   @media (max-width: 768px) {
-    .photo-gallery .gallery {
-      padding: 60px 15px 20px;
-    }
-
-    .photo-gallery .main-image-container {
-      padding: 10px 20px;
-    }
-
-    .photo-gallery .counter {
-      right: 15px;
-    }
-
     .photo-gallery .thumbnail-wrapper img {
       height: 60px;
-    }
-
-    .photo-gallery .thumbnail-container {
-      height: 90px;
     }
   }
 </style>
@@ -306,6 +292,9 @@ const photos = response.contents;
 
 <script is:inline>
   (function() {
+    var isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    if (isTouchDevice) return;
+
     const stalker = document.querySelector('.camera-stalker');
     const target = document.querySelector('.main-image');
     if (!stalker || !target) return;
@@ -360,7 +349,6 @@ const photos = response.contents;
     const mainImage = document.querySelector('.main-image');
     const thumbnailTrack = document.querySelector('.thumbnail-track');
     const thumbnailContainer = document.querySelector('.thumbnail-container');
-    const currentCounter = document.querySelector('.counter .current');
     const thumbnails = document.querySelectorAll('.thumbnail-wrapper:not([style*="display: none"])');
 
     if (!mainImage || !thumbnailTrack || !thumbnailContainer || thumbnails.length === 0) return;
@@ -379,11 +367,6 @@ const photos = response.contents;
       var firstVisible = thumbnails[0];
       mainImage.src = firstVisible.dataset.src;
       firstVisible.classList.add('active');
-      // totalカウンターをフィルタ後の件数に更新
-      var totalCounter = document.querySelector('.counter .total');
-      if (totalCounter) {
-        totalCounter.textContent = String(thumbnails.length).padStart(2, '0');
-      }
     }
 
     let currentIndex = 0;
@@ -449,8 +432,6 @@ const photos = response.contents;
       thumbnails.forEach((t, i) => {
         t.classList.toggle('active', i === newIndex);
       });
-
-      currentCounter.textContent = String(newIndex + 1).padStart(2, '0');
 
       gsap.killTweensOf(mainImage);
 

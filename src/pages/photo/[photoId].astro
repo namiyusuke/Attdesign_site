@@ -111,6 +111,11 @@ const createdAt = formatDate(photo.createdAt);
   .photo-detail-camera{
     margin-block: calc(40 / 16 * 1rem) ;
   }
+  @media (min-width:768px) {
+    .photo-detail-camera{
+      margin-block: calc(40 / 16 * 1rem) ;
+    }
+  }
   .photo-detail__image {
     position: relative;
     width: 100%;
@@ -118,8 +123,14 @@ const createdAt = formatDate(photo.createdAt);
     overflow: hidden;
   }
 .photo-detail-text{
+  margin-top:calc(24 / 16 * 1rem) ;
+  font-weight: 400;
+}
+@media (min-width:768px) {
+.photo-detail-text{
   margin-top:calc(40 / 16 * 1rem) ;
   font-weight: 400;
+}
 }
 .photo-detail-text p + p{
   margin-top:1rem;
@@ -133,14 +144,30 @@ const createdAt = formatDate(photo.createdAt);
     object-fit: cover;
   }
   .photo-detail-content{
-    margin-top:calc(84 / 16 * 1rem)
+    margin-top:calc(40 / 16 * 1rem)
   }
+  @media (min-width:768px) {
+    .photo-detail-content{
+    margin-top:calc(84 / 16 * 1rem);
+  }
+}
   .photo-detail-content h1{
     font-family: var(--ff-jp2);
     font-weight: 400;
+    margin-top:calc(24 / 16 * 1rem);
+    font-size : calc(24 / 16 * 1rem);
   }
+@media (min-width:768px) {
+  .photo-detail-content h1{
+    font-family: var(--ff-jp2);
+    font-weight: 400;
+    margin-top:calc(24 / 16 * 1rem);
+    font-size : calc(24 / 16 * 1rem);
+  }
+}
   .back-btn{
     margin-top: calc(80 / 16 * 1rem) ;
+    text-align: center;
     }
   .back-btn a{
     display: inline-block;
@@ -150,14 +177,21 @@ const createdAt = formatDate(photo.createdAt);
     background-color: #202020;
     color: #fff;
   }
+.photo-detail-body{
+  margin-top: calc(136 / 16 * 1rem) ;
+  margin-bottom: calc(92 / 16 * 1rem) ;
+}
   @media (min-width:768px) {
   .photo-detail-body{
     display: grid;
     column-gap:40px ;
+    margin-top: calc(0 / 16 * 1rem) ;
     grid-template-columns: min(calc(600 / 1440 * 100vw),600px) 1fr;
   }
   }
   .photo-detail-wrapper{
+    padding-inline:calc(26 / 16 * 1rem) ;
+    box-sizing: content-box;
     max-inline-size: 1046px;
     margin-inline: auto;
   }
