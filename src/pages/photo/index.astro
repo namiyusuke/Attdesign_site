@@ -513,18 +513,18 @@ const photos = response.contents;
         targetScrollPosition = Math.max(0, Math.min(targetScrollPosition, maxScroll));
       }, { passive: false });
 
-      let touchStartY = 0;
+      let touchStartX = 0;
       let touchStartScroll = 0;
 
       document.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX;
         touchStartScroll = targetScrollPosition;
       }, { passive: false });
 
       document.addEventListener('touchmove', (e) => {
         e.preventDefault();
-        const touchY = e.touches[0].clientY;
-        const diff = touchStartY - touchY;
+        const touchX = e.touches[0].clientX;
+        const diff = touchStartX - touchX;
         targetScrollPosition = touchStartScroll + diff;
         targetScrollPosition = Math.max(0, Math.min(targetScrollPosition, maxScroll));
       }, { passive: false });
