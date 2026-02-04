@@ -782,6 +782,13 @@ export class WebGL {
     // オーバーレイを表示
     shutterOverlay.classList.add("-is-active");
 
+    // シャッター音を再生（0.3秒遅延）
+    const shutterSound = new Audio("/camera.mp3");
+    shutterSound.volume = 0.1;
+    setTimeout(() => {
+      shutterSound.play().catch(() => {});
+    }, 300);
+
     // アニメーション
     let aperture = 1;
     const targetAperture = 0.15; // 0だとブレードが消えるので、少し開いた状態で止める
