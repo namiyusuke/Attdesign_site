@@ -52,7 +52,7 @@ const photos = response.contents;
   <!-- Camera Stalker SVG -->
   <span class="camera-stalker">
     <img class="camera-stalker-giza" src={cameraGiza.src} alt="">
-    <img src={camera.src} alt="">
+    <img class="camera-stalker-main" src={camera.src} alt="">
   </span>
 
   </main>
@@ -216,13 +216,16 @@ const photos = response.contents;
     position: fixed;
     top: 0;
     left: 0;
-    width: 50px;
-    height: 50px;
+    width: 120px;
+    height: 120px;
     pointer-events: none;
     z-index: 9999;
     will-change: transform;
     opacity: 0;
+    padding: 1rem;
+    background: radial-gradient(circle, rgba(131, 131, 131, 0.4) 0%, rgba(87, 87, 87, 0) 60%);
     transition: opacity 0.4s ease;
+    border-radius: 50%;
   }
 
   .camera-stalker.is-visible {
@@ -259,10 +262,16 @@ const photos = response.contents;
   .camera-stalker-giza{
     animation: fade-infinite 1.2s infinite;
     position: absolute;
-    right:-20px;
-    top:-20px;
+    right:20px;
+    top:20px;
   }
-
+.camera-stalker-main{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    width: 40%;
+}
   @keyframes fade-infinite {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
