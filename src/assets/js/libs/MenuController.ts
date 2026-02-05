@@ -24,11 +24,23 @@ export function initMenuController(): void {
     menu.classList.remove('is-active');
   };
 
+  // ランダム背景画像の切り替え
+  const menuBack = menu.querySelector('.menu-back') as HTMLImageElement | null;
+  const menuBackImages: string[] = menuBack?.dataset.images ? JSON.parse(menuBack.dataset.images) : [];
+
+  const changeRandomBackground = () => {
+    if (menuBack && menuBackImages.length > 0) {
+      const randomIndex = Math.floor(Math.random() * menuBackImages.length);
+      menuBack.src = menuBackImages[randomIndex];
+    }
+  };
+
   // header-iconクリックでメニュー開閉
   headerIcon.addEventListener('click', () => {
     isMenuOpen = !isMenuOpen;
 
     if (isMenuOpen) {
+      changeRandomBackground();
       menu.style.left = '';
       menu.style.top = '';
       menu.style.right = '48px';

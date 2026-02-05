@@ -5,6 +5,9 @@ import frame from "@assets/img/photo-frame.png";
 import frameSp from "@assets/img/photo-frame-sp.png";
 import x_logo from "@assets/img/x_logo.png";
 import menuBack from "@assets/img/menuBack.png";
+import menuBack2 from "@assets/img/menuBack2.png";
+import menuBack3 from "@assets/img/menuBack3.png";
+import menuBack4 from "@assets/img/menuBack4.png";
 // microCMSからcategoryデータを取得
 const categoryResponse = await client.getList<Category>({
   endpoint: 'category',
@@ -25,7 +28,7 @@ const categories = categoryResponse.contents;
   </div>
   <div class="menu">
     <div class="menu-inner">
-      <img class="menu-back" src={menuBack.src} alt="">
+      <img class="menu-back" src={menuBack.src} alt="" data-images={JSON.stringify([menuBack.src, menuBack2.src, menuBack3.src, menuBack4.src])}>
       <picture class="menu-frame">
         <source srcset={frameSp.src} media="(max-width: 767px)" />
         <img src={frame.src} alt="" />
@@ -71,7 +74,7 @@ const categories = categoryResponse.contents;
       margin: auto;
       display: grid;
       place-items: center;
-      width: 85%;
+      width: 75%;
       pointer-events: none;
     }
     .menu-text-btn{
