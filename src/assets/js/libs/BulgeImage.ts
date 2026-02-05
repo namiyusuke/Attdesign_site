@@ -15,8 +15,16 @@ export class BulgeImage {
   // アニメーション用
   private animationId: number | null = null;
 
+  // マウス位置 (0~1のUV座標)
+  private mouse = { x: 0.5, y: 0.5 };
+  private targetMouse = { x: 0.5, y: 0.5 };
+  private onMouseMoveBound: (e: MouseEvent) => void;
+  private onMouseLeaveBound: () => void;
+
   constructor(container: HTMLElement, imageUrl: string) {
     this.container = container;
+    this.onMouseMoveBound = this.onMouseMove.bind(this);
+    this.onMouseLeaveBound = this.onMouseLeave.bind(this);
 
     // Canvas作成
     this.canvas = document.createElement("canvas");
@@ -49,8 +57,9 @@ export class BulgeImage {
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         uTexture: { value: null },
-        uOffset: { value: 1.0 }, // 1.0 = 最大bulge, 0.0 = no bulge
+        uOffset: { value: 1.0 },
         uTime: { value: 0 },
+        uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -63,6 +72,7 @@ export class BulgeImage {
         precision highp float;
         uniform float uTime;
         uniform float uOffset;
+        uniform vec2 uMouse;
         varying vec2 vUv;
         uniform sampler2D uTexture;
 
@@ -78,15 +88,12 @@ export class BulgeImage {
         }
 
         void main() {
-          // 中心を(0.5, 0.5)から(0, 0)に移動
-          vec2 centeredUv = vUv - 0.5;
+          // マウス位置を中心にbulge効果を適用
+          vec2 centeredUv = vUv - uMouse;
 
-          // bulge効果を適用
           vec2 bulgedUv = bulge(centeredUv);
-          // 中心を元に戻す
-          bulgedUv += 0.5;
+          bulgedUv += uMouse  ;
 
-          // 変形されたUV座標でテクスチャをサンプリング
           vec4 textureColor = texture2D(uTexture, mix(vUv, bulgedUv, uOffset));
 
           gl_FragColor = vec4(textureColor.rgb, 1.0);
@@ -103,6 +110,10 @@ export class BulgeImage {
 
     // Handle resize
     window.addEventListener("resize", this.onResize.bind(this));
+
+    // マウスイベント登録
+    this.container.addEventListener("mousemove", this.onMouseMoveBound);
+    this.container.addEventListener("mouseleave", this.onMouseLeaveBound);
   }
 
   private loadTexture(imageUrl: string): void {
@@ -124,6 +135,33 @@ export class BulgeImage {
     this.renderer.setSize(rect.width, rect.height);
   }
 
+  private onMouseMove(e: MouseEvent): void {
+    const rect = this.container.getBoundingClientRect();
+    this.targetMouse.x = (e.clientX - rect.left) / rect.width;
+    this.targetMouse.y = 1.0 - (e.clientY - rect.top) / rect.height;
+
+    // マウスが乗ったらbulge効果をON
+    gsap.to(this.material.uniforms.uOffset, {
+      value: .2,
+      duration: 0.6,
+      ease: "power2.out",
+      overwrite: true,
+    });
+  }
+
+  private onMouseLeave(): void {
+    // マウスが離れたらbulge効果をOFF & 中心に戻す
+    this.targetMouse.x = 0.5;
+    this.targetMouse.y = 0.5;
+
+    gsap.to(this.material.uniforms.uOffset, {
+      value: 0.0,
+      duration: 0.6,
+      ease: "power2.out",
+      overwrite: true,
+    });
+  }
+
   private startAnimation(): void {
     // 初期状態: bulge効果が最大 (uOffset = 1.0)
     this.material.uniforms.uOffset.value = 1.0;
@@ -142,6 +180,14 @@ export class BulgeImage {
 
   private animate(): void {
     this.animationId = requestAnimationFrame(this.animate.bind(this));
+  // GSAPでuOffsetを1.0から0.0にアニメーション
+
+    // マウス位置を滑らかに補間
+    const lerp = 0.08;
+    this.mouse.x += (this.targetMouse.x - this.mouse.x) * lerp;
+    this.mouse.y += (this.targetMouse.y - this.mouse.y) * lerp;
+    this.material.uniforms.uMouse.value.set(this.mouse.x, this.mouse.y);
+
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -150,6 +196,8 @@ export class BulgeImage {
       cancelAnimationFrame(this.animationId);
     }
     window.removeEventListener("resize", this.onResize.bind(this));
+    this.container.removeEventListener("mousemove", this.onMouseMoveBound);
+    this.container.removeEventListener("mouseleave", this.onMouseLeaveBound);
 
     if (this.texture) {
       this.texture.dispose();
