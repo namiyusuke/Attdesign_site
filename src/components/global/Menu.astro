@@ -3,7 +3,8 @@ import { client,type Category  } from '../../lib/microcms';
 import kumin from "@assets/img/kuu-icon.png";
 import frame from "@assets/img/photo-frame.png";
 import frameSp from "@assets/img/photo-frame-sp.png";
-import x_logo from "@assets/img/x_logo.png"
+import x_logo from "@assets/img/x_logo.png";
+import menuBack from "@assets/img/menuBack.png";
 // microCMSからcategoryデータを取得
 const categoryResponse = await client.getList<Category>({
   endpoint: 'category',
@@ -24,6 +25,7 @@ const categories = categoryResponse.contents;
   </div>
   <div class="menu">
     <div class="menu-inner">
+      <img class="menu-back" src={menuBack.src} alt="">
       <picture class="menu-frame">
         <source srcset={frameSp.src} media="(max-width: 767px)" />
         <img src={frame.src} alt="" />
@@ -63,6 +65,15 @@ const categories = categoryResponse.contents;
     </div>
   </div>
   <style is:global>
+    .menu-back{
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      display: grid;
+      place-items: center;
+      width: 85%;
+      pointer-events: none;
+    }
     .menu-text-btn{
       display: flex;
       column-gap: calc(24 / 16 * 1rem);
@@ -237,6 +248,7 @@ const categories = categoryResponse.contents;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
     @media (min-width:768px) {
       .menu-inner{
