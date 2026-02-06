@@ -62,6 +62,7 @@ export class WebGL {
 
   // イントロアニメーション用
   private isIntro = true;
+  private skipIntro = false;
 
   // イベントリスナーのバインド
   private boundOnResize: () => void;
@@ -75,8 +76,9 @@ export class WebGL {
   private boundOnWheel: (e: WheelEvent) => void;
   private boundOnClick: (e: MouseEvent) => void;
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, skipIntro = false) {
     this.canvas = canvas;
+    this.skipIntro = skipIntro;
 
     // microCMSから取得したデータを使用
     const photoData = window.__PHOTO_DATA__ || [];
@@ -839,18 +841,129 @@ export class WebGL {
   }
 
   private playIntroAnimation(): void {
+    // トップページ以外、またはswup遷移後はイントロをスキップ
+    if (this.skipIntro || window.location.pathname !== "/") {
+      this.isIntro = false;
+      this.material.uniforms.u_bulge.value = 0.0;
+      const introOverlay = document.getElementById("intro-overlay");
+      if (introOverlay) {
+        introOverlay.classList.add("-is-hidden");
+      }
+      return;
+    }
+
     this.isIntro = true;
     this.material.uniforms.u_bulge.value = 1.0;
 
-    gsap.to(this.material.uniforms.u_bulge, {
-      value: 0.0,
-      duration: 1.5,
-      ease: "power3.out",
-      delay: 0.3,
-      onComplete: () => {
-        this.isIntro = false;
-      },
+    const introOverlay = document.getElementById("intro-overlay");
+    if (!introOverlay) {
+      // フォールバック: 従来のアニメーション
+      gsap.to(this.material.uniforms.u_bulge, {
+        value: 0.0,
+        duration: 1.5,
+        ease: "power3.out",
+        delay: 0.3,
+        onComplete: () => {
+          this.isIntro = false;
+        },
+      });
+      return;
+    }
+
+    // イントロ用の8枚の画像（publicフォルダ）- photo08が最後（一番上）になる順番
+    const selectedImages = [
+      "/intro-photo01.jpg",
+      "/intro-photo02.jpg",
+      "/intro-photo03.jpg",
+      "/intro-photo04.jpg",
+      "/intro-photo05.jpg",
+      "/intro-photo06.jpg",
+      "/intro-photo07.jpg",
+      "/intro-photo08.jpg",
+    ];
+    const imgElements: HTMLImageElement[] = [];
+
+    // Phase 1: 画像要素を生成してフェードイン
+    const timeline = gsap.timeline();
+
+    selectedImages.forEach((src, index) => {
+      const img = document.createElement("img");
+      img.src = src;
+      img.className = "intro-overlay__img";
+      img.style.zIndex = String(index + 1);
+      // ランダムな回転（-15° 〜 +15°）
+      const rotation = (Math.random() - 0.5) * 30;
+      img.style.transform = `rotate(${rotation}deg)`;
+      introOverlay.appendChild(img);
+      imgElements.push(img);
+
+      // 0.4秒間隔でフェードイン
+      timeline.to(
+        img,
+        {
+          opacity: 1,
+          duration: 1,
+          ease: "power1.out",
+        },
+        index * .9
+      );
     });
+
+    // Phase 2: 散らばる（Phase 1完了後）
+    timeline.add(() => {
+      const count = imgElements.length;
+      // 開始角度をランダムにして毎回違う方向に
+      const startAngle = Math.random() * Math.PI * 2;
+
+      imgElements.forEach((img, index) => {
+        // 均等な角度（360° / 枚数）+ 少しランダムなオフセット
+        const baseAngle = (Math.PI * 2 * index) / count;
+        const angleOffset = (Math.random() - 0.5) * (Math.PI / count);
+        const angle = startAngle + baseAngle + angleOffset;
+
+        // 距離も均等に分散
+        const baseDistance = 0.6 + (index / count) * 0.4;
+        const distanceOffset = (Math.random() - 0.5) * 0.2;
+        const distance = window.innerWidth * (baseDistance + distanceOffset);
+
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+        // 追加のランダム回転
+        const extraRotation = (Math.random() - 0.5) * 60;
+
+        gsap.to(img, {
+          x: x,
+          y: y,
+          rotation: `+=${extraRotation}`,
+          opacity: 0,
+          duration: 0.8,
+          ease: "power2.in",
+        });
+      });
+    }, "+=0.3");
+
+    // Phase 3: タイル化（散らばり完了後）
+    timeline.add(() => {
+      // 白い背景をフェードアウト
+      gsap.to(introOverlay, {
+        opacity: 0,
+        duration: 1.0,
+        ease: "power3.out",
+      });
+
+      gsap.to(this.material.uniforms.u_bulge, {
+        value: 0.0,
+        duration: 1.0,
+        ease: "power3.out",
+        onComplete: () => {
+          this.isIntro = false;
+          // DOM要素をクリーンアップ
+          imgElements.forEach((img) => img.remove());
+          introOverlay.classList.add("-is-hidden");
+          introOverlay.style.opacity = "";
+        },
+      });
+    }, "+=0.8");
   }
 
   private animate(): void {

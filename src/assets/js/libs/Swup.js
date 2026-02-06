@@ -5,6 +5,7 @@ import SwupScriptsPlugin from "@swup/scripts-plugin";
 import { BulgeImage } from "./BulgeImage";
 import { LeafShadow } from "./LeafShadow";
 import { initMenuController } from "./MenuController";
+import { initPhotoGallery } from "./PhotoGallery";
 
 // グローバルにインスタンスを保持
 let bulgeInstance = null;
@@ -113,12 +114,25 @@ export default function swupFunc() {
     initLeafShadow();
     updateTimeOverlay();
     initMenuController();
+    initPhotoGallery();
   });
 
   // 初回ロード時もチェック
   initBulgeImage();
   initLeafShadow();
   updateTimeOverlay();
+  // DOMContentLoadedを確認
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOMContentLoaded fired');
+      initPhotoGallery();
+    });
+  } else {
+    console.log('DOM already ready');
+    console.log('Current URL:', window.location.pathname);
+    console.log('Document body:', document.body.innerHTML.substring(0, 500));
+    initPhotoGallery();
+  }
 
   // グローバルに公開（WebGLなどからナビゲーションに使用）
   window.swup = swup;

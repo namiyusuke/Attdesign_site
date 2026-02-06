@@ -45,10 +45,7 @@ const { title, description } = Astro.props;
   </head>
   <body>
     <div class="p-transition js-transition"></div>
-    <!-- 写真フライアウト用オーバーレイ -->
-    <div id="photo-overlay" class="photo-overlay">
-      <img id="photo-overlay-img" class="photo-overlay__img" src="" alt="" />
-    </div>
+
     <!-- カメラシャッター用オーバーレイ -->
     <div id="shutter-overlay" class="shutter-overlay">
       <svg id="shutterSvg" class="shutter-svg" viewBox="0 0 400 400">
@@ -154,6 +151,35 @@ const { title, description } = Astro.props;
       }
       .photo-overlay__img.-is-animating {
         transition: all 2s cubic-bezier(0.25, 0.1, 0.25, 1);
+      }
+
+      /* イントロアニメーション用オーバーレイ */
+      .intro-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 60;
+        pointer-events: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #fff;
+      }
+      .intro-overlay.-is-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .intro-overlay__img {
+        position: absolute;
+        width: 35vmin;
+        height: 35vmin;
+        object-fit: cover;
+        opacity: 0;
+        will-change: transform, opacity;
+        box-shadow: 0 4px 5px rgba(0, 0, 0, 0.09);
       }
 
       /* カメラシャッター用オーバーレイ */
