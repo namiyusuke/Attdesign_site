@@ -6,7 +6,7 @@ import { BulgeImage } from "./BulgeImage";
 import { LeafShadow } from "./LeafShadow";
 import { initMenuController } from "./MenuController";
 import { initPhotoGallery } from "./PhotoGallery";
-
+import { WebGL } from "./WebGL";
 // グローバルにインスタンスを保持
 let bulgeInstance = null;
 let leafShadowInstance = null;
@@ -107,7 +107,33 @@ export default function swupFunc() {
       }),
     ],
   });
+  let webglInstance;
+  function initWebGL(skipIntro = false) {
+    const canvas = document.getElementById("webgl");
+    if (!canvas) return;
 
+    // window.__PHOTO_DATA__が設定されるまでポーリング
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    function tryInit() {
+      attempts++;
+      console.log('tryInit attempt:', attempts, 'data:', window.__PHOTO_DATA__);
+
+      if (window.__PHOTO_DATA__ && window.__PHOTO_DATA__.length > 0) {
+        if (webglInstance) {
+          webglInstance.destroy();
+        }
+        webglInstance = new WebGL(canvas, skipIntro);
+      } else if (attempts < maxAttempts) {
+        setTimeout(tryInit, 50);
+      } else {
+        console.log('Max attempts reached, no photo data');
+      }
+    }
+
+    tryInit();
+  }
   // ページ遷移完了後に初期化
   swup.hooks.on("page:view", () => {
     initBulgeImage();
@@ -115,12 +141,14 @@ export default function swupFunc() {
     updateTimeOverlay();
     initMenuController();
     initPhotoGallery();
+    initWebGL(true); // swup遷移時はイントロをスキップ
   });
 
   // 初回ロード時もチェック
   initBulgeImage();
   initLeafShadow();
   updateTimeOverlay();
+  initWebGL(false);
   // DOMContentLoadedを確認
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {

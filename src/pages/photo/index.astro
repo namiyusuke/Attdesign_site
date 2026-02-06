@@ -87,9 +87,9 @@ const photos = response.contents;
       display: grid;
       top: calc(-40 / 16 * 1rem);
       bottom:16%;
-      width: calc(900 / 1440 * 100cqw);
+      --frame-size: min(900px, calc(900 / 1440 * 100cqw), calc(902 / 600 * 60dvh));
+      width: var(--frame-size);
       min-width: 600px;
-      max-width: 900px;
     }
   }
   .photo-gallery {
@@ -110,6 +110,7 @@ const photos = response.contents;
 @media (min-width:768px){
   .photo-gallery .gallery {
     row-gap: min(calc(80 / 1440 * 100cqw),80px);
+    margin-top: calc(60 / 16 * 1rem);
   }
 }
   .photo-gallery .main-image-container {
@@ -133,8 +134,9 @@ const photos = response.contents;
   }
 @media (min-width:768px){
   .photo-gallery .main-image {
-    max-width:440px ;
-    width: calc(440 / 1440 * 100cqw);
+    --size: min(440px, calc(440 / 1440 * 100cqw), 50dvh);
+    width: var(--size);
+    height: var(--size);
   }
 }
   .photo-gallery .thumbnail-container {

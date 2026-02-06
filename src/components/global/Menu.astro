@@ -58,6 +58,7 @@ const categories = categoryResponse.contents;
     <div class="menu-filter-inner">
       <span class="menu-close"></span>
       <ul>
+         <li><a href="/">top</a></li>
         {categories.map((cat) => (
           <li>
             <a href={`/photo/?category=${cat.data}`}>{cat.data}</a>
@@ -338,7 +339,12 @@ const categories = categoryResponse.contents;
     }
     .menu-filter-inner ul{
       list-style: none;
+      width: max-content;
+      margin-inline: auto;
     }
+      .menu-filter-inner li {
+        line-height: 1;
+      }
     .menu-filter-inner li +li{
       margin-top: calc(24 / 16 * 1rem);
     }
