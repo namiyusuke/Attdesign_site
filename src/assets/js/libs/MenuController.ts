@@ -229,4 +229,5 @@ export function initMenuController(): void {
       }
     });
   }
+
 }

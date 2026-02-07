@@ -105,16 +105,22 @@ const categories = categoryResponse.contents;
    .menu-text-btn a:hover{
     transform: scale(1.1);
    }
+    .menu-btn-x {
+
+    }
     .menu-btn-x a{
-      padding:calc(8 / 16 * 1rem);
+      width: clamp(calc(30 / 16 * 1rem), calc(30 / 1440 * 100cqw), calc(30 / 16 * 1rem));
+      height: clamp(calc(30 / 16 * 1rem), calc(30 / 1440 * 100cqw), calc(30 / 16 * 1rem));
+      display: grid;
+      place-items: center;
     }
     .menu-btn-x img{
-      width: calc(14 / 16 * 1rem);
+      width: clamp(calc(10 / 16 * 1rem),calc(14 / 1440 * 100cqw),calc(14 / 16 * 1rem));
     }
     .menu-btn-contact a{
       padding-block:calc(10 / 16 * 1rem);
       padding-inline:calc(12 / 16 * 1rem);
-      font-size: calc(14 / 16 * 1rem);
+      font-size: clamp((calc(10 / 16 * 1rem)), calc(14 / 1440 * 100cqw), calc(14 / 16 * 1rem));
     }
     .menu-close{
       width: calc(20 / 16 * 1rem) ;
@@ -256,7 +262,7 @@ const categories = categoryResponse.contents;
     }
     @media (min-width:768px) {
       .menu-inner{
-        padding:calc(80 / 16 * 1rem);
+        padding:min(calc(80 / 1440 * 100cqw),80px);
       }
     }
     .menu-text-top{
@@ -292,7 +298,7 @@ const categories = categoryResponse.contents;
       font-size: calc(14 / 1440 * 100cqw);
     }
     .menu-text-bottom-en{
-      font-size: calc(14 / 16 * 1rem);
+      font-size: clamp((calc(10 / 16 * 1rem)), calc(14 / 1440 * 100cqw), calc(16 / 16 * 1rem));
     }
      }
     .menu-text-bottom p + p{
@@ -352,24 +358,3 @@ const categories = categoryResponse.contents;
       opacity: .4;
     }
   </style>
-<script>
-  import { initMenuController } from '../../assets/js/libs/MenuController';
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => initMenuController());
-  } else {
-    initMenuController();
-  }
-
-  // フィルターメニューのcurrentクラス付与
-  const currentCategory = new URLSearchParams(window.location.search).get('category');
-  const filterLinks = document.querySelectorAll('.menu-filter-inner a');
-  filterLinks.forEach((link) => {
-    const href = link.getAttribute('href') || '';
-    const linkCategory = new URLSearchParams(href.split('?')[1] || '').get('category');
-    if (currentCategory && linkCategory === currentCategory) {
-      link.classList.add('current');
-    } else if (!currentCategory && href === '/photo/') {
-      link.classList.add('current');
-    }
-  });
-</script>

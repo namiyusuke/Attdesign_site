@@ -6,6 +6,7 @@ import { BulgeImage } from "./BulgeImage";
 import { LeafShadow } from "./LeafShadow";
 import { initMenuController } from "./MenuController";
 import { initPhotoGallery } from "./PhotoGallery";
+import { MenuFilter } from "./MenuFilter";
 import { WebGL } from "./WebGL";
 // グローバルにインスタンスを保持
 let bulgeInstance = null;
@@ -142,10 +143,12 @@ export default function swupFunc() {
     initMenuController();
     initPhotoGallery();
     initWebGL(true); // swup遷移時はイントロをスキップ
+    MenuFilter();
   });
 
   // 初回ロード時もチェック
   initBulgeImage();
+  MenuFilter();
   initLeafShadow();
   updateTimeOverlay();
   initWebGL(false);

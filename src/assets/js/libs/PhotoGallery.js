@@ -1,8 +1,6 @@
 import gsap from "gsap";
 
 export function initPhotoGallery() {
-
-  console.log("fafa")
     // カテゴリフィルタリング
     const urlParams = new URLSearchParams(window.location.search);
     const filterCategory = urlParams.get('category');
@@ -37,12 +35,11 @@ export function initPhotoGallery() {
       thumb.dataset.index = String(i);
     });
 
-    // フィルタ後の最初の画像をメインに設定
-    if (filterCategory && thumbnails.length > 0) {
-      // 既存のactive状態をリセット
-      document.querySelectorAll('.thumbnail-wrapper.active').forEach(function(el) {
-        el.classList.remove('active');
-      });
+    // 既存のactive状態をリセットし、最初の画像をメインに設定
+    document.querySelectorAll('.thumbnail-wrapper.active').forEach(function(el) {
+      el.classList.remove('active');
+    });
+    if (thumbnails.length > 0) {
       var firstVisible = thumbnails[0];
       mainImage.src = firstVisible.dataset.src;
       firstVisible.classList.add('active');
@@ -179,10 +176,17 @@ export function initPhotoGallery() {
 
       setTimeout(() => {
         calculatePositions();
-        // URLハッシュがあれば該当写真に移動
+        // URLハッシュがあれば該当写真に移動、なければ最初のサムネイルを中央に配置
         const hash = window.location.hash.substring(1);
         if (hash) {
           scrollToPhotoById(hash);
+        } else if (thumbnailPositions.length > 0) {
+          // 最初のサムネイルを中央に配置
+          const pos = thumbnailPositions[0];
+          scrollPosition = pos.center - containerWidth / 2;
+          scrollPosition = Math.max(0, Math.min(scrollPosition, maxScroll));
+          targetScrollPosition = scrollPosition;
+          currentIndex = 0;
         }
       }, 100);
 
