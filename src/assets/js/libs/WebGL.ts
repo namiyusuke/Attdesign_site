@@ -928,7 +928,7 @@ export class WebGL {
 
         const x = Math.cos(angle) * distance;
         const y = Math.sin(angle) * distance;
-        // 追加のランダム回転
+        // 追加のランダム
         const extraRotation = (Math.random() - 0.5) * 60;
 
         gsap.to(img, {
