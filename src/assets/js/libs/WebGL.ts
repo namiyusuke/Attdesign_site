@@ -14,9 +14,8 @@ declare global {
   }
 }
 
-const ATLAS_COLS = 4;
-const ATLAS_ROWS = 4;
 const baseRepeat = 3;
+const TILE_SIZE = 512;
 
 export class WebGL {
   private renderer: THREE.WebGLRenderer;
@@ -59,6 +58,12 @@ export class WebGL {
   private prevHoveredTile = { x: -9999, y: -9999 };
   private prevHoverScale = 1.0;
   private prevHoverTween: gsap.core.Tween | null = null;
+
+  // アトラス・タイル配置用
+  private atlasCols = 4;
+  private atlasRows = 4;
+  private tileStride = 9;
+  private imageCount = 0;
 
   // イントロアニメーション用
   private isIntro = true;
@@ -122,9 +127,10 @@ export class WebGL {
         u_gap: { value: 0.0 },
         u_baseGap: { value: 2.0 }, // 固定の隙間（ピクセル）
         u_depth: { value: 0.0 },
-        u_imageCount: { value: 25.0 },
+        u_imageCount: { value: 16.0 },
         u_atlasCols: { value: 4.0 },
         u_atlasRows: { value: 4.0 },
+        u_tileStride: { value: 9.0 },
         u_bulge: { value: 1.0 },
         u_hoverTile: { value: new THREE.Vector2(-9999, -9999) },
         u_hoverScale: { value: 1.0 },
@@ -151,6 +157,7 @@ export class WebGL {
         uniform float u_imageCount;
         uniform float u_atlasCols;
         uniform float u_atlasRows;
+        uniform float u_tileStride;
         uniform float u_bulge;
         uniform vec2 u_hoverTile;
         uniform float u_hoverScale;
@@ -217,8 +224,8 @@ export class WebGL {
           if (isOutside) {
             color = vec4(0.922, 0.922, 0.922, 1.0);
           } else {
-            // XとY座標を組み合わせて決定（縦横で異なる画像になる）
-            float indexFloat = mod(tileIndex.x + tileIndex.y * u_atlasCols, u_imageCount);
+            // XとY座標を組み合わせて決定（隣接タイルで被らないようストライド値を使用）
+            float indexFloat = mod(tileIndex.x + tileIndex.y * u_tileStride, u_imageCount);
             int imageIndex = int(indexFloat);
 
             // アトラス内の位置を計算（5x2グリッド）
@@ -263,10 +270,10 @@ export class WebGL {
   }
 
   private createTextureAtlas(images: (HTMLImageElement | HTMLCanvasElement)[]): THREE.CanvasTexture {
-    const atlasWidth = 2048; // 512 * 4
-    const atlasHeight = 2048; // 512 * 4
-    const tileWidth = atlasWidth / ATLAS_COLS;
-    const tileHeight = atlasHeight / ATLAS_ROWS;
+    const atlasWidth = this.atlasCols * TILE_SIZE;
+    const atlasHeight = this.atlasRows * TILE_SIZE;
+    const tileWidth = TILE_SIZE;
+    const tileHeight = TILE_SIZE;
 
     const atlasCanvas = document.createElement("canvas");
     atlasCanvas.width = atlasWidth;
@@ -279,8 +286,8 @@ export class WebGL {
 
     // 各画像をcover方式で配置（タイル全体を埋める）
     images.forEach((img, index) => {
-      const col = index % ATLAS_COLS;
-      const row = Math.floor(index / ATLAS_COLS);
+      const col = index % this.atlasCols;
+      const row = Math.floor(index / this.atlasCols);
       const x = col * tileWidth;
       const y = row * tileHeight;
 
@@ -339,6 +346,18 @@ export class WebGL {
     });
 
     Promise.all(promises).then((images) => {
+      // 画像枚数に応じてアトラスのグリッドサイズを計算
+      this.imageCount = images.length;
+      this.atlasCols = Math.ceil(Math.sqrt(this.imageCount));
+      this.atlasRows = Math.ceil(this.imageCount / this.atlasCols);
+      this.tileStride = this.computeTileStride(this.imageCount);
+
+      // uniformを更新
+      this.material.uniforms.u_imageCount.value = this.imageCount;
+      this.material.uniforms.u_atlasCols.value = this.atlasCols;
+      this.material.uniforms.u_atlasRows.value = this.atlasRows;
+      this.material.uniforms.u_tileStride.value = this.tileStride;
+
       this.atlasTexture = this.createTextureAtlas(images);
       this.material.uniforms.u_texture.value = this.atlasTexture;
       this.updateAspect();
@@ -609,8 +628,8 @@ export class WebGL {
     }
 
     // XとY座標を組み合わせて決定（シェーダーと同じ計算）
-    const calcValue = tileIndexX + tileIndexY * ATLAS_COLS;
-    const imageIndex = ((calcValue % 25) + 25) % 25;
+    const calcValue = tileIndexX + tileIndexY * this.tileStride;
+    const imageIndex = ((calcValue % this.imageCount) + this.imageCount) % this.imageCount;
 
     // 遷移先URLとimage URLを取得
     const targetUrl = this.imageURLs[imageIndex];
@@ -902,7 +921,7 @@ export class WebGL {
         img,
         {
           opacity: 1,
-          duration: 1,
+          duration: 0.6,
           ease: "power1.out",
         },
         index * .9
@@ -1001,6 +1020,28 @@ export class WebGL {
     this.material.uniforms.u_depth.value = this.currentDepth;
 
     this.renderer.render(this.scene, this.camera);
+  }
+
+  /**
+   * 画面内で隣接タイルが被らない最適なストライド値を計算する。
+   * ストライドは画面上の表示列数より大きく、かつimageCountと互いに素な値を選ぶ。
+   */
+  private computeTileStride(imageCount: number): number {
+    if (imageCount <= 1) return 1;
+    // 画面上に表示されるタイル列数（ウルトラワイド想定で余裕をもたせる）
+    const minStride = 7;
+    const target = Math.max(minStride, Math.ceil(imageCount / 3));
+    for (let m = target; m < imageCount * 2; m++) {
+      if (this.gcd(m, imageCount) === 1) return m;
+    }
+    return target;
+  }
+
+  private gcd(a: number, b: number): number {
+    while (b) {
+      [a, b] = [b, a % b];
+    }
+    return a;
   }
 
   public destroy(): void {
