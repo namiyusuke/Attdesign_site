@@ -4,6 +4,7 @@ import kumin from "@assets/img/kuu-icon.png";
 import frame from "@assets/img/photo-frame.png";
 import frameSp from "@assets/img/photo-frame-sp.png";
 import x_logo from "@assets/img/x_logo.png";
+import photoire_logo from "@assets/img/photoire_logo.svg";
 import menuBack from "@assets/img/menuBack.png";
 import menuBack2 from "@assets/img/menuBack2.png";
 import menuBack3 from "@assets/img/menuBack3.png";
@@ -21,6 +22,9 @@ const categories = categoryResponse.contents;
 
 
   <div class="header">
+    <a href="">
+      <img class="header-logo" src={photoire_logo.src} alt="">
+    </a>
     <p class="header-icon">
       <img src={kumin.src} alt="">
     </p>
@@ -39,7 +43,7 @@ const categories = categoryResponse.contents;
         <p>『Photoire』＝写真で残す日々の記録です。</p>
       </div>
       <div class="menu-text-bottom">
-        <p class="menu-text-bottom-jp">Kumi Kaneko<br>金子 久美</p>
+        <p class="menu-text-bottom-jp">くうみん</p>
         <p class="menu-text-bottom-en">Web design/Graphic design/<br>Direction support</p>
       </div>
       <div class="menu-text-btn">
@@ -69,6 +73,19 @@ const categories = categoryResponse.contents;
     </div>
   </div>
   <style is:global>
+    .header-logo{
+      position: fixed;
+      width: calc(100 / 16 * 1rem) ;
+      top: calc(35 / 16 * 1rem);
+      left: calc(25 / 16 * 1rem);
+    }
+     @media (min-width:768px) {
+        .header-logo{
+      width: calc(160 / 16 * 1rem);
+      top: calc(54 / 16 * 1rem);
+      left: calc(60 / 16 * 1rem);
+    }
+     }
     .menu-back{
       position: absolute;
       inset: 0;
@@ -81,7 +98,7 @@ const categories = categoryResponse.contents;
     .menu-text-btn{
       display: flex;
       column-gap: calc(24 / 16 * 1rem);
-      margin-top: calc(60 / 16 * 1rem);
+      margin-top: min(calc(24 / 375 * 100cqw),24px);
       position: relative;
       z-index: 10;
     }
@@ -89,7 +106,7 @@ const categories = categoryResponse.contents;
       .menu-text-btn{
         display: flex;
         column-gap: calc(24 / 16 * 1rem);
-        margin-top: calc(60 / 1440 * 100cqw);
+        margin-top: min(calc(24 / 1440 * 100cqw),24px);
         position: relative;
         z-index: 10;
       }
@@ -105,9 +122,9 @@ const categories = categoryResponse.contents;
    .menu-text-btn a:hover{
     transform: scale(1.1);
    }
-    .menu-btn-x {
-
-    }
+  .menu-text-bottom-jp{
+    font-size: calc(16 / 16 * 1rem);
+  }
     .menu-btn-x a{
       width: clamp(calc(30 / 16 * 1rem), calc(30 / 1440 * 100cqw), calc(30 / 16 * 1rem));
       height: clamp(calc(30 / 16 * 1rem), calc(30 / 1440 * 100cqw), calc(30 / 16 * 1rem));
@@ -126,7 +143,7 @@ const categories = categoryResponse.contents;
       width: calc(20 / 16 * 1rem) ;
       height: calc(20 / 16 * 1rem) ;
       position: absolute;
-      top: calc(24 / 16 * 1rem) ;
+      top: calc(32 / 16 * 1rem) ;
       right: calc(24 / 16 * 1rem) ;
       cursor: pointer;
     }
@@ -203,7 +220,7 @@ const categories = categoryResponse.contents;
       right: 8px;
       width: calc(300 / 375 * 100cqw);
       height: max-content;
-      aspect-ratio:300/537 ;
+      aspect-ratio:300/517 ;
       color: #222;
       z-index: 10;
       opacity: 0;
@@ -230,12 +247,14 @@ const categories = categoryResponse.contents;
       width: calc(260 / 375 * 100cqw);
       display: grid;
       place-items: center;
+      display: none;
     }
     @media (min-width:768px) {
       .menu-frame{
+        display: flex;
         position: absolute;
         inset: 0;
-        bottom: 10%;
+        bottom: 0%;
         margin: auto;
         width: calc(400 / 1440 * 100cqw);
       }
@@ -292,17 +311,17 @@ const categories = categoryResponse.contents;
       font-size: calc(12 / 16 * 1rem);
     }
      @media (min-width:768px) {
-    .menu-text-bottom{
-      text-align: center;
-      margin-top: calc(60 / 1440 * 100cqw);
-      font-size: calc(14 / 1440 * 100cqw);
-    }
-    .menu-text-bottom-en{
-      font-size: clamp((calc(10 / 16 * 1rem)), calc(14 / 1440 * 100cqw), calc(16 / 16 * 1rem));
-    }
+      .menu-text-bottom{
+        text-align: center;
+        margin-top: calc(60 / 1440 * 100cqw);
+        font-size: calc(14 / 1440 * 100cqw);
+      }
+      .menu-text-bottom-en{
+        font-size: clamp((calc(10 / 16 * 1rem)), calc(14 / 1440 * 100cqw), calc(16 / 16 * 1rem));
+      }
      }
     .menu-text-bottom p + p{
-      margin-top: calc(16 / 16 * 1rem);
+      margin-top: calc(12 / 16 * 1rem);
     }
     .menu-filter{
       position: fixed;
