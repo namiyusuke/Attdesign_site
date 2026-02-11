@@ -35,8 +35,7 @@ const formatDate = (dateString: string) => {
 const createdAt = formatDate(photo.createdAt);
 ---
 
-<Layout>
-
+<Layout title={photo.title} description={`${photo.title} - Photoire`} image={photo.image.url}>
   <Menu />
   <!-- 背景用キャンバス（葉の影エフェクト） -->
   <canvas id="leaf-shadow-canvas"></canvas>

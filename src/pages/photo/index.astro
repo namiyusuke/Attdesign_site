@@ -16,9 +16,10 @@ const photos = response.contents;
 
 ---
 
-<Layout title="Photo Gallery" description="写真ギャラリー">
+<Layout title="Photoire" description="Photoire（フォトワール）は、くうみんが写真で残す日々の記録。毎日、1枚の写真に短いメモを添えて投稿しています。日付順や「街」「カフェ」「風景」「イベント」Viewで切り替え可能。気になるロゴや美術系イベントなど、デザイナー目線のフォトも掲載。 ">
   <Menu />
   <main class="photo-gallery">
+
     <div class="gallery">
       <div class="main-image-container">
         <p class="category">
@@ -54,7 +55,7 @@ const photos = response.contents;
     <img class="camera-stalker-giza" src={cameraGiza.src} alt="">
     <img class="camera-stalker-main" src={camera.src} alt="">
   </span>
-
+  <span class="photo-page-overlay"></span>
   </main>
 
   <style is:global>
@@ -280,6 +281,44 @@ const photos = response.contents;
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
   }
+.photo-page-overlay  {
+  position: fixed;
+  inset: 0;
+  background-color: #fff;
+  opacity: 1;
+  z-index: 100;
+  pointer-events: none;
+}
+ .swup-load .photo-page-overlay {
+  animation: fadein 1s ease-out forwards .5s ;
+}
+@keyframes fadein {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+/* .is-changing .photo-overlay {
+  opacity: 1;
+  transition: opacity 1.2s ease-out 0s;
+  animation: fadein 2s ease-out forwards;
+} */
+/* .is-leaving .photo-overlay {
+  opacity: 0;
+  transition: opacity 3s ease-out 0s;
+} */
+/* .photo-overlay {
+  transition: opacity 0.5s ease-out 0.5s;
+  position: fixed;
+  inset: 0;
+  background-color: #fff;
+  opacity: 0;
+}
+.swup-loaded .photo-overlay {
+  animation: fadein 2s ease-out forwards;
+} */
 
 </style>
 

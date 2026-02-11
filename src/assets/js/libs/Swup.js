@@ -135,6 +135,7 @@ export default function swupFunc() {
 
     tryInit();
   }
+
   // ページ遷移完了後に初期化
   swup.hooks.on("page:view", () => {
     initBulgeImage();
@@ -144,6 +145,12 @@ export default function swupFunc() {
     initPhotoGallery();
     initWebGL(true); // swup遷移時はイントロをスキップ
     MenuFilter();
+   document.documentElement.classList.add('swup-load');
+    // if ( document.documentElement.contains('swup-load')) {
+    //    setTimeout(() => {
+    //   document.documentElement.classList.remove('swup-load');
+    // },500)
+    // }
   });
 
   // 初回ロード時もチェック
@@ -163,6 +170,12 @@ export default function swupFunc() {
     console.log('Current URL:', window.location.pathname);
     console.log('Document body:', document.body.innerHTML.substring(0, 500));
     initPhotoGallery();
+      document.documentElement.classList.add('swup-load');
+    // if ( document.documentElement.contains('swup-load')) {
+    //    setTimeout(() => {
+    //   document.documentElement.classList.remove('swup-load');
+    // },500)
+    // }
   }
 
   // グローバルに公開（WebGLなどからナビゲーションに使用）

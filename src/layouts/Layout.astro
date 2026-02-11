@@ -12,9 +12,10 @@ import GlobalFooter from "../components/global/GlobalFooter.astro";
 interface Props {
   title: string;
   description: string;
+  image?: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, image } = Astro.props;
 ---
 
 <!doctype html>
@@ -26,20 +27,19 @@ const { title, description } = Astro.props;
     <meta property="og:url" content={Astro.url} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="https://photoire.attdesign.site/ogp.png" />
+    <meta property="og:image" content={image ?? "https://photoire.attdesign.site/ogp.png"} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ja_JP" />
     <meta property="og:site_name" content={SITE.name} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content={SNS.twitter} />
-    <link rel="apple-touch-icon" href="/apple_touch_icon.webp" />
     <meta name="format-detection" content="telephone=no, email=no, address=no" />
     <link rel="canonical" href={Astro.url} />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kaisei+Opti:wght@400;500;700&family=Zen+Kaku+Gothic+Antique:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="https://photoire.attdesign.site/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href={`${SITE.base}apple-touch-icon.webp`} />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <title>{title}</title>
   </head>
   <body>
@@ -202,6 +202,7 @@ const { title, description } = Astro.props;
         width: 20vmax;
         height: 20vmax;
       }
+
     </style>
   </body>
 </html>
