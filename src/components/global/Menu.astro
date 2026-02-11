@@ -192,29 +192,32 @@ const categories = categoryResponse.contents;
    }
     .header{
       position: fixed;
+      margin-inline: auto;
+      width: calc(320 / 375 * 100cqw);
       top: calc(32 / 16 * 1rem) ;
-      right: calc(23 / 16 * 1rem) ;
+      left: 0;
+      right: 0;
       z-index: 100;
       display: flex;
       align-items: center;
       flex-direction: row-reverse;
-      column-gap: calc(24 / 16 * 1rem) ;
     }
     @media (min-width:768px) {
       .header{
         position: fixed;
+        width: auto;
         top: calc(54 / 16 * 1rem) ;
         right: calc(48 / 16 * 1rem) ;
         z-index: 100;
         display: flex;
         align-items: center;
         flex-direction: row-reverse;
-        column-gap: calc(24 / 16 * 1rem) ;
       }
     }
     .header-icon{
       width: calc(40 / 16 * 1rem);
       cursor: pointer;
+      margin-left: calc(24 / 16 * 1rem);
     }
     .menu{
       position: fixed;
