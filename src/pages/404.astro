@@ -1,0 +1,641 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="404 — Page Not Found" description="お探しのページは見つかりませんでした">
+  <main class="notfound">
+    <!-- Blurred scene -->
+    <div class="notfound__scene" id="scene">
+      <div class="notfound__code">404</div>
+      <div class="notfound__message">お探しのページは見つかりませんでした</div>
+      <div class="notfound__sub">ピントが合う場所を探してみてください</div>
+      <a href="/" class="notfound__btn" id="homeBtn">
+        トップに戻る
+      </a>
+    </div>
+
+    <!-- AF Bracket -->
+    <div class="notfound__af hunting" id="afBracket">
+      <div class="notfound__af-corner tl"></div>
+      <div class="notfound__af-corner tr"></div>
+      <div class="notfound__af-corner bl"></div>
+      <div class="notfound__af-corner br"></div>
+      <div class="notfound__af-dot"></div>
+    </div>
+
+    <!-- Viewfinder bar -->
+    <div class="notfound__vf">
+      <span>f/2.8</span>
+      <span>1/125</span>
+      <span>ISO 400</span>
+      <span class="notfound__vf-focus hunting" id="vfFocus">● AF</span>
+    </div>
+
+    <!-- Focus meter -->
+    <div class="notfound__meter">
+      <div class="notfound__meter-label">∞</div>
+      <div class="notfound__meter-track">
+        <div class="notfound__meter-fill" id="focusFill"></div>
+      </div>
+      <div class="notfound__meter-label">0.3m</div>
+    </div>
+
+    <!-- Hint -->
+    <div class="notfound__hint" id="focusHint">
+      ここにピントを合わせて<br />
+      <span class="notfound__hint-arrow">↓</span>
+    </div>
+
+    <!-- Mobile hint -->
+    <div class="notfound__touch-hint">端末を傾けてピントを合わせてください</div>
+  </main>
+</Layout>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&display=swap");
+
+  .notfound {
+    --af-hunting: #8b7b6b;
+    --af-locked: #6aad6a;
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: #f5f4f0;
+    user-select: none;
+    overflow: hidden;
+  }
+
+  /* Paper texture */
+  .notfound::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.6' numOctaves='3' type='fractalNoise'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 200;
+  }
+
+  /* ===== BLURRED SCENE ===== */
+  .notfound__scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    filter: blur(var(--blur, 4px));
+    transition: filter 0.25s ease-out;
+    z-index: 1;
+  }
+
+  .notfound__code {
+    font-family: var(--ff-jp2);
+    font-size: clamp(100px, 20vw, 220px);
+    font-weight: 400;
+    color: rgba(32, 32, 32, 0.06);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  .notfound__message {
+    font-family: var(--ff-jp);
+    font-size: 15px;
+    font-weight: 400;
+    color: #8b7b6b;
+    margin-bottom: 6px;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  .notfound__sub {
+    font-family: var(--ff-jp);
+    font-size: 12px;
+    color: #c4b5a0;
+    text-align: center;
+    line-height: 1.8;
+    margin-bottom: 32px;
+  }
+
+  /* Home button */
+  .notfound__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    background: #202020;
+    color: #f5f4f0;
+    text-decoration: none;
+    font-family: var(--ff-jp);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    border: none;
+  }
+
+  .notfound__btn svg {
+    width: 15px;
+    height: 15px;
+    transition: transform 0.3s;
+  }
+
+  .notfound__btn:hover svg {
+    transform: translateX(-3px);
+  }
+
+  /* Glow ring when focused */
+  .notfound__btn::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 100px;
+    border: 2px solid transparent;
+    transition: border-color 0.5s, box-shadow 0.5s;
+    pointer-events: none;
+  }
+
+
+  .notfound__af {
+    position: fixed;
+    width: 56px;
+    height: 56px;
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  .notfound__af-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+  }
+
+  .notfound__af-corner.tl {
+    top: 0;
+    left: 0;
+    border-top: 2px solid var(--af-hunting);
+    border-left: 2px solid var(--af-hunting);
+  }
+  .notfound__af-corner.tr {
+    top: 0;
+    right: 0;
+    border-top: 2px solid var(--af-hunting);
+    border-right: 2px solid var(--af-hunting);
+  }
+  .notfound__af-corner.bl {
+    bottom: 0;
+    left: 0;
+    border-bottom: 2px solid var(--af-hunting);
+    border-left: 2px solid var(--af-hunting);
+  }
+  .notfound__af-corner.br {
+    bottom: 0;
+    right: 0;
+    border-bottom: 2px solid var(--af-hunting);
+    border-right: 2px solid var(--af-hunting);
+  }
+
+  .notfound__af-dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    background: var(--af-hunting);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: background 0.3s;
+  }
+
+
+  @keyframes afHunt {
+    0% {
+      width: 56px;
+      height: 56px;
+    }
+    100% {
+      width: 64px;
+      height: 64px;
+    }
+  }
+
+  /* Locked state */
+
+  .notfound__af.locked {
+    animation: none;
+  }
+
+  .notfound__af.lock-confirm {
+    animation: lockFlash 0.15s ease 2;
+  }
+
+  @keyframes lockFlash {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  /* ===== VIEWFINDER BAR ===== */
+  .notfound__vf {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    display: flex;
+    gap: 20px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: rgba(32, 32, 32, 0.2);
+    pointer-events: none;
+    font-family: var(--ff-jp);
+  }
+
+  .notfound__vf-focus {
+    transition: color 0.3s;
+  }
+
+  .notfound__vf-focus.locked {
+    color: var(--af-locked);
+  }
+
+  .notfound__vf-focus.hunting {
+    color: var(--af-hunting);
+    animation: blink 0.8s steps(1) infinite;
+  }
+
+  @keyframes blink {
+    0%,
+    50% {
+      opacity: 1;
+    }
+    51%,
+    100% {
+      opacity: 0.3;
+    }
+  }
+
+  /* ===== FOCUS METER ===== */
+  .notfound__meter {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    pointer-events: none;
+  }
+
+  .notfound__meter-track {
+    width: 3px;
+    height: 120px;
+    background: rgba(32, 32, 32, 0.06);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .notfound__meter-fill {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 0%;
+    background: var(--af-hunting);
+    border-radius: 2px;
+    transition: height 0.3s ease-out, background 0.3s;
+  }
+
+  .notfound__meter-fill.locked {
+    background: var(--af-locked);
+  }
+
+  .notfound__meter-label {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: rgba(32, 32, 32, 0.15);
+  }
+
+  /* ===== HINT ===== */
+  .notfound__hint {
+    position: fixed;
+    z-index: 40;
+    font-family: "Caveat", cursive;
+    font-size: 15px;
+    color: #8b7b6b;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.8s;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .notfound__hint.show {
+    opacity: 0.7;
+  }
+
+  .notfound__hint-arrow {
+    display: block;
+    font-size: 20px;
+    animation: arrowBounce 1.5s ease-in-out infinite;
+  }
+
+  @keyframes arrowBounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(6px);
+    }
+  }
+
+  /* ===== TOUCH HINT ===== */
+  .notfound__touch-hint {
+    position: fixed;
+    bottom: 44px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 40;
+    font-size: 11px;
+    color: rgba(32, 32, 32, 0.2);
+    display: none;
+    pointer-events: none;
+  }
+
+  @media (hover: none) {
+    .notfound__touch-hint {
+      display: block;
+    }
+    .notfound__meter {
+      display: none;
+    }
+    .notfound {
+      cursor: default;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .notfound__code {
+      font-size: clamp(80px, 22vw, 160px);
+    }
+    .notfound__vf {
+      font-size: 9px;
+      gap: 14px;
+    }
+    .notfound__meter {
+      right: 12px;
+    }
+    .notfound__meter-track {
+      height: 80px;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const scene = document.getElementById("scene");
+    const afBracket = document.getElementById("afBracket");
+    const homeBtn = document.getElementById("homeBtn");
+    const vfFocus = document.getElementById("vfFocus");
+    const focusFill = document.getElementById("focusFill");
+    const focusHint = document.getElementById("focusHint");
+    if (!scene || !afBracket || !homeBtn || !vfFocus || !focusFill || !focusHint) return;
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let isLocked = false;
+    let hintShown = false;
+    let afX = mouseX;
+    let afY = mouseY;
+
+    // Device orientation (mobile tilt control)
+    const isMobile = matchMedia("(hover: none)").matches;
+    let hasGyro = false;
+    let tiltX = 0; // gamma: -90 ~ 90
+    let tiltY = 0; // beta: 0 ~ 180
+
+    function handleOrientation(e: DeviceOrientationEvent) {
+      if (e.gamma == null || e.beta == null) return;
+      hasGyro = true;
+      tiltX = e.gamma; // left-right: -90 ~ 90
+      tiltY = Math.min(Math.max(e.beta, 0), 90); // front-back: clamp 0~90
+    }
+
+    if (isMobile) {
+      // iOS 13+ requires permission
+      const doe = DeviceOrientationEvent as any;
+      if (typeof doe.requestPermission === "function") {
+        document.addEventListener("touchstart", function reqPerm() {
+          doe.requestPermission().then((state: string) => {
+            if (state === "granted") {
+              window.addEventListener("deviceorientation", handleOrientation, { passive: true });
+            }
+          }).catch(() => {});
+          document.removeEventListener("touchstart", reqPerm);
+        }, { once: true });
+      } else {
+        window.addEventListener("deviceorientation", handleOrientation, { passive: true });
+      }
+    }
+
+    function lerp(a: number, b: number, t: number) {
+      return a + (b - a) * t;
+    }
+
+    function getProximity() {
+      const rect = homeBtn.getBoundingClientRect();
+      const btnCX = rect.left + rect.width / 2;
+      const btnCY = rect.top + rect.height / 2;
+      const dx = mouseX - btnCX;
+      const dy = mouseY - btnCY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const maxDist = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2) * 0.5;
+      return Math.max(0, 1 - dist / maxDist);
+    }
+
+    function isOverButton() {
+      const rect = homeBtn.getBoundingClientRect();
+      const margin = 20;
+      return (
+        mouseX >= rect.left - margin &&
+        mouseX <= rect.right + margin &&
+        mouseY >= rect.top - margin &&
+        mouseY <= rect.bottom + margin
+      );
+    }
+
+    const hintTimer = setTimeout(() => {
+      if (!isLocked) {
+        const rect = homeBtn.getBoundingClientRect();
+        focusHint.style.left = rect.left + rect.width / 2 + "px";
+        focusHint.style.top = rect.top - 60 + "px";
+        focusHint.style.transform = "translateX(-50%)";
+        focusHint.classList.add("show");
+        hintShown = true;
+      }
+    }, 5000);
+
+    function showBeep() {
+      try {
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 2400;
+        gain.gain.value = 0.06;
+        osc.start();
+        osc.stop(ctx.currentTime + 0.06);
+        setTimeout(() => {
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          osc2.frequency.value = 2400;
+          gain2.gain.value = 0.06;
+          osc2.start();
+          osc2.stop(ctx.currentTime + 0.06);
+        }, 80);
+      } catch (e) {}
+    }
+
+    let time = 0;
+    function animate() {
+      time += 0.016;
+
+      // On mobile with gyro, map tilt to virtual cursor position
+      if (isMobile && hasGyro) {
+        // gamma (-90~90) → screen X, center at gamma=0
+        mouseX = lerp(mouseX, (tiltX / 90 + 1) * 0.5 * window.innerWidth, 0.08);
+        // beta (0~90) → screen Y, ~45° maps to center
+        mouseY = lerp(mouseY, (tiltY / 90) * window.innerHeight, 0.08);
+      }
+
+      const proximity = getProximity();
+      const overBtn = isOverButton();
+
+      // Blur
+      let blur;
+      if (overBtn) {
+        blur = 0;
+      } else {
+        const p = proximity * proximity;
+        blur = 4 - p * 3.5;
+        blur += Math.sin(time * 2.5) * (0.5 - proximity * 0.4);
+      }
+      blur = Math.max(0, blur);
+      scene.style.setProperty("--blur", blur.toFixed(1) + "px");
+
+      // AF Bracket position & size
+      const btnRect = homeBtn.getBoundingClientRect();
+      const pad = 12;
+      let bracketW: number;
+      let bracketH: number;
+
+      if (!overBtn) {
+        const huntOffX = Math.sin(time * 1.8) * (18 - proximity * 15);
+        const huntOffY = Math.cos(time * 2.2) * (12 - proximity * 10);
+        const targetX = mouseX + huntOffX;
+        const targetY = mouseY + huntOffY;
+        afX = lerp(afX, targetX, 0.12);
+        afY = lerp(afY, targetY, 0.12);
+        bracketW = 56 + Math.sin(time * 2.5) * 4;
+        bracketH = bracketW;
+      } else {
+        const targetX = btnRect.left + btnRect.width / 2;
+        const targetY = btnRect.top + btnRect.height / 2;
+        afX = lerp(afX, targetX, 0.25);
+        afY = lerp(afY, targetY, 0.25);
+        bracketW = btnRect.width + pad * 2;
+        bracketH = btnRect.height + pad * 2;
+      }
+
+      afBracket.style.width = bracketW + "px";
+      afBracket.style.height = bracketH + "px";
+      afBracket.style.left = afX - bracketW / 2 + "px";
+      afBracket.style.top = afY - bracketH / 2 + "px";
+
+      // Lock state
+      if (overBtn && !isLocked) {
+        isLocked = true;
+        afBracket.classList.remove("hunting");
+        afBracket.classList.add("locked");
+
+        setTimeout(() => {
+          afBracket.classList.add("lock-confirm");
+          showBeep();
+        }, 100);
+        setTimeout(() => afBracket.classList.remove("lock-confirm"), 500);
+
+        vfFocus.classList.remove("hunting");
+        vfFocus.classList.add("locked");
+        vfFocus.textContent = "● LOCK";
+
+        homeBtn.classList.add("focused");
+        focusFill.classList.add("locked");
+
+        if (hintShown) {
+          focusHint.classList.remove("show");
+        }
+        clearTimeout(hintTimer);
+      } else if (!overBtn && isLocked) {
+        isLocked = false;
+        afBracket.classList.remove("locked", "lock-confirm");
+        afBracket.classList.add("hunting");
+
+        vfFocus.classList.remove("locked");
+        vfFocus.classList.add("hunting");
+        vfFocus.textContent = "● AF";
+
+        homeBtn.classList.remove("focused");
+        focusFill.classList.remove("locked");
+      }
+
+      // Focus meter
+      const fillPercent = overBtn ? 100 : proximity * proximity * 85;
+      focusFill.style.height = fillPercent.toFixed(1) + "%";
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    document.addEventListener("mousemove", (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    document.addEventListener(
+      "touchmove",
+      (e) => {
+        mouseX = e.touches[0].clientX;
+        mouseY = e.touches[0].clientY;
+      },
+      { passive: true }
+    );
+
+    document.addEventListener(
+      "touchstart",
+      (e) => {
+        mouseX = e.touches[0].clientX;
+        mouseY = e.touches[0].clientY;
+      },
+      { passive: true }
+    );
+
+    window.addEventListener("resize", () => {
+      if (hintShown && focusHint.classList.contains("show")) {
+        const rect = homeBtn.getBoundingClientRect();
+        focusHint.style.left = rect.left + rect.width / 2 + "px";
+        focusHint.style.top = rect.top - 60 + "px";
+      }
+    });
+  })();
+</script>
