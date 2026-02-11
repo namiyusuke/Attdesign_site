@@ -980,6 +980,10 @@ export class WebGL {
           imgElements.forEach((img) => img.remove());
           introOverlay.classList.add("-is-hidden");
           introOverlay.style.opacity = "";
+          document.body.classList.add("-intro-completed");
+          setTimeout(() => {
+              document.body.classList.remove("-intro-completed");
+          }, 3000);
         },
       });
     }, "+=0.8");
