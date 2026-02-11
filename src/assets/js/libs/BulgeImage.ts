@@ -18,6 +18,7 @@ export class BulgeImage {
   // マウス位置 (0~1のUV座標)
   private mouse = { x: 0.5, y: 0.5 };
   private targetMouse = { x: 0.5, y: 0.5 };
+  private isIntroAnimating = false;
   private onMouseMoveBound: (e: MouseEvent) => void;
   private onMouseLeaveBound: () => void;
 
@@ -136,6 +137,8 @@ export class BulgeImage {
   }
 
   private onMouseMove(e: MouseEvent): void {
+    if (this.isIntroAnimating) return;
+
     const rect = this.container.getBoundingClientRect();
     this.targetMouse.x = (e.clientX - rect.left) / rect.width;
     this.targetMouse.y = 1.0 - (e.clientY - rect.top) / rect.height;
@@ -150,6 +153,8 @@ export class BulgeImage {
   }
 
   private onMouseLeave(): void {
+    if (this.isIntroAnimating) return;
+
     // マウスが離れたらbulge効果をOFF & 中心に戻す
     this.targetMouse.x = 0.5;
     this.targetMouse.y = 0.5;
@@ -170,11 +175,15 @@ export class BulgeImage {
     this.animate();
 
     // GSAPでuOffsetを1.0から0.0にアニメーション
+    this.isIntroAnimating = true;
     gsap.to(this.material.uniforms.uOffset, {
       value: 0.0,
       duration: 1.2,
       ease: "power3.out",
       delay: 0.2,
+      onComplete: () => {
+        this.isIntroAnimating = false;
+      },
     });
   }
 
