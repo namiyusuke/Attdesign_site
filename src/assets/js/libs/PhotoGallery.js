@@ -174,7 +174,17 @@ export function initPhotoGallery() {
         }
       });
 
-      setTimeout(() => {
+      // サムネイル画像の読み込みを待ってからポジションを計算
+      const thumbImages = thumbnailTrack.querySelectorAll('img');
+      const imagePromises = Array.from(thumbImages).map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.addEventListener('load', resolve, { once: true });
+          img.addEventListener('error', resolve, { once: true });
+        });
+      });
+
+      Promise.all(imagePromises).then(() => {
         calculatePositions();
         // URLハッシュがあれば該当写真に移動、なければ最初のサムネイルを中央に配置
         const hash = window.location.hash.substring(1);
@@ -188,7 +198,7 @@ export function initPhotoGallery() {
           targetScrollPosition = scrollPosition;
           currentIndex = 0;
         }
-      }, 100);
+      });
 
       document.addEventListener('wheel', (e) => {
         e.preventDefault();

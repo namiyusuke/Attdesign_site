@@ -423,25 +423,37 @@ import Layout from "../layouts/Layout.astro";
     let tiltY = 0; // beta: 0 ~ 180
 
     function handleOrientation(e: DeviceOrientationEvent) {
-      if (e.gamma == null || e.beta == null) return;
+      console.log("[404 gyro] event fired", { beta: e.beta, gamma: e.gamma });
+      if (e.gamma == null || e.beta == null) {
+        console.log("[404 gyro] gamma/beta is null, skipping");
+        return;
+      }
       hasGyro = true;
-      tiltX = e.gamma; // left-right: -90 ~ 90
-      tiltY = Math.min(Math.max(e.beta, 0), 90); // front-back: clamp 0~90
+      tiltX = e.gamma;
+      tiltY = Math.min(Math.max(e.beta, 0), 90);
     }
 
+    console.log("[404 gyro] isMobile:", isMobile);
     if (isMobile) {
-      // iOS 13+ requires permission
       const doe = DeviceOrientationEvent as any;
-      if (typeof doe.requestPermission === "function") {
+      const needsPermission = typeof doe.requestPermission === "function";
+      console.log("[404 gyro] needsPermission (iOS):", needsPermission);
+
+      if (needsPermission) {
         document.addEventListener("touchstart", function reqPerm() {
+          console.log("[404 gyro] requesting iOS permission...");
           doe.requestPermission().then((state: string) => {
+            console.log("[404 gyro] permission result:", state);
             if (state === "granted") {
               window.addEventListener("deviceorientation", handleOrientation, { passive: true });
             }
-          }).catch(() => {});
+          }).catch((err: any) => {
+            console.error("[404 gyro] permission error:", err);
+          });
           document.removeEventListener("touchstart", reqPerm);
         }, { once: true });
       } else {
+        console.log("[404 gyro] adding listener directly (non-iOS)");
         window.addEventListener("deviceorientation", handleOrientation, { passive: true });
       }
     }

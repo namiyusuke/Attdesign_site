@@ -22,7 +22,7 @@ const categories = categoryResponse.contents;
 
 
   <div class="header">
-    <a href="">
+    <a href="/">
       <img class="header-logo" src={photoire_logo.src} alt="">
     </a>
     <p class="header-icon">
@@ -143,9 +143,10 @@ const categories = categoryResponse.contents;
       width: calc(20 / 16 * 1rem) ;
       height: calc(20 / 16 * 1rem) ;
       position: absolute;
-      top: calc(32 / 16 * 1rem) ;
-      right: calc(24 / 16 * 1rem) ;
+      top: calc(24 / 16 * 1rem) ;
+      right: calc(18 / 16 * 1rem) ;
       cursor: pointer;
+
     }
     .menu-close::after,
     .menu-close::before{
@@ -155,6 +156,7 @@ const categories = categoryResponse.contents;
       width: 100%;
       height: 1px;
       background-color: #202020;
+      inset: 0;
     }
     .menu-filter-inner .menu-close::after,
     .menu-filter-inner .menu-close::before{
