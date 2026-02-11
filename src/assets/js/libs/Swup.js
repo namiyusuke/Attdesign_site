@@ -119,7 +119,7 @@ export default function swupFunc() {
 
     function tryInit() {
       attempts++;
-      console.log('tryInit attempt:', attempts, 'data:', window.__PHOTO_DATA__);
+
 
       if (window.__PHOTO_DATA__ && window.__PHOTO_DATA__.length > 0) {
         if (webglInstance) {
@@ -129,7 +129,7 @@ export default function swupFunc() {
       } else if (attempts < maxAttempts) {
         setTimeout(tryInit, 50);
       } else {
-        console.log('Max attempts reached, no photo data');
+
       }
     }
 
@@ -162,13 +162,11 @@ export default function swupFunc() {
   // DOMContentLoadedを確認
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      console.log('DOMContentLoaded fired');
+
       initPhotoGallery();
     });
   } else {
-    console.log('DOM already ready');
-    console.log('Current URL:', window.location.pathname);
-    console.log('Document body:', document.body.innerHTML.substring(0, 500));
+
     initPhotoGallery();
       document.documentElement.classList.add('swup-load');
     // if ( document.documentElement.contains('swup-load')) {

@@ -256,8 +256,6 @@ if (isMobile) {
   setColors(colors) {
     if (Array.isArray(colors) && colors.length === 3) {
       this.colors = colors;
-    } else {
-      console.error("Colors should be an array of 3 color strings");
     }
   }
 

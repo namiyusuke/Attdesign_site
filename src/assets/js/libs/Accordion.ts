@@ -27,7 +27,7 @@ export default class Accordion {
     this.els?.forEach((el) => {
 
       if (!(el instanceof HTMLElement)) {
-        console.error(`${el}がHTMLElementではありません`);
+
         return;
       }
 
@@ -35,7 +35,7 @@ export default class Accordion {
       const content = el.querySelector('[data-accordion-content]');
 
       if (!(content instanceof HTMLElement)) {
-        console.error(`${content}がHTMLElementではありません`);
+
         return;
       }
 

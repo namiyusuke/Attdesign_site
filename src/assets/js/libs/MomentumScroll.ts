@@ -48,7 +48,7 @@ export default class MomentumScroll {
 
   private _pageLink(e: Event) {
     if (!( e.currentTarget instanceof HTMLElement)) {
-      console.error(`${ e.currentTarget}がHTMLElementではありません`);
+
       return;
     }
 

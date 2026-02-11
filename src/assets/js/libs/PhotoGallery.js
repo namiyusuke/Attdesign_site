@@ -23,10 +23,6 @@ export function initPhotoGallery() {
     const thumbnailContainer = document.querySelector('.thumbnail-container');
     const thumbnails = document.querySelectorAll('.thumbnail-wrapper:not([style*="display: none"])');
 
-    console.log("mainImage:", mainImage);
-    console.log("thumbnailTrack:", thumbnailTrack);
-    console.log("thumbnailContainer:", thumbnailContainer);
-    console.log("thumbnails:", thumbnails.length);
 
     if (!mainImage || !thumbnailTrack || !thumbnailContainer || thumbnails.length === 0) return;
 

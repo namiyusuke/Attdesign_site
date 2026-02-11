@@ -208,7 +208,10 @@ export class WebGL {
           float gap = baseGapUV + dynamicGap;
           vec2 scaledUV = (tileUV - 0.5) / (1.0 - gap * 2.0) + 0.5;
 
-          // ホバー中のタイルなら画像をスケール
+          // タイル外かどうかチェック（ホバースケール適用前にgap判定）
+          bool isOutside = scaledUV.x < 0.0 || scaledUV.x > 1.0 || scaledUV.y < 0.0 || scaledUV.y > 1.0;
+
+          // ホバー中のタイルなら画像をスケール（テクスチャ参照のみ、gap判定には影響しない）
           bool isHovered = (tileIndex.x == u_hoverTile.x && tileIndex.y == u_hoverTile.y);
           bool isPrevHovered = (tileIndex.x == u_prevHoverTile.x && tileIndex.y == u_prevHoverTile.y);
           if (isHovered && u_hoverScale > 1.001) {
@@ -216,9 +219,6 @@ export class WebGL {
           } else if (isPrevHovered && u_prevHoverScale > 1.001) {
             scaledUV = (scaledUV - 0.5) / u_prevHoverScale + 0.5;
           }
-
-          // タイル外かどうかチェック
-          bool isOutside = scaledUV.x < 0.0 || scaledUV.x > 1.0 || scaledUV.y < 0.0 || scaledUV.y > 1.0;
 
           vec4 color;
           if (isOutside) {
