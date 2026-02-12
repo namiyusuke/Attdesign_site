@@ -595,7 +595,7 @@ export class WebGL {
     const centered_y = y - 0.5;
     const distFromCenter = Math.sqrt(centered_x * centered_x + centered_y * centered_y);
 
-    // 奥行きワープを適用（シェーダーと同じ）
+    // 奥行きワープを適用（シェーダーと同じ
     const depthStrength = 0;
     const warpFactor = 1.0 - depthStrength * distFromCenter * 2.0;
     const warpedX = centered_x * warpFactor + 0.5;
@@ -924,7 +924,7 @@ export class WebGL {
           duration: 0.6,
           ease: "power1.out",
         },
-        index * .9
+        index * 0.9,
       );
     });
 
@@ -982,7 +982,7 @@ export class WebGL {
           introOverlay.style.opacity = "";
           document.body.classList.add("-intro-completed");
           setTimeout(() => {
-              document.body.classList.remove("-intro-completed");
+            document.body.classList.remove("-intro-completed");
           }, 3000);
         },
       });
