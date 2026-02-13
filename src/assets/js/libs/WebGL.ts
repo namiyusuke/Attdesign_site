@@ -595,7 +595,7 @@ export class WebGL {
     const centered_y = y - 0.5;
     const distFromCenter = Math.sqrt(centered_x * centered_x + centered_y * centered_y);
 
-    // 奥行きワープを適用（シェーダーと同じ
+    // 奥行きワープを適用（シェーダーと同じ）
     const depthStrength = 0;
     const warpFactor = 1.0 - depthStrength * distFromCenter * 2.0;
     const warpedX = centered_x * warpFactor + 0.5;
