@@ -48,6 +48,9 @@ import Layout from "../layouts/Layout.astro";
 
     <!-- Mobile hint -->
     <div class="notfound__touch-hint">端末を傾けてピントを合わせてください</div>
+
+    <!-- iOS permission button -->
+    <button id="gyroPermBtn" style="display:none;height:max-content;position:fixed;top:50%;bottom:0px;left:50%;transform:translate(-50%,-50%);z-index:9999;padding:6px 12px;background:#202020;color:#fff;border:none;font-size:18px;align-items:center;margin:auto">傾き検知を有効化</button>
   </main>
 </Layout>
 
@@ -423,37 +426,46 @@ import Layout from "../layouts/Layout.astro";
     let tiltY = 0; // beta: 0 ~ 180
 
     function handleOrientation(e: DeviceOrientationEvent) {
-      console.log("[404 gyro] event fired", { beta: e.beta, gamma: e.gamma });
-      if (e.gamma == null || e.beta == null) {
-        console.log("[404 gyro] gamma/beta is null, skipping");
-        return;
-      }
+      if (e.gamma == null || e.beta == null) return;
       hasGyro = true;
       tiltX = e.gamma;
       tiltY = Math.min(Math.max(e.beta, 0), 90);
     }
 
-    console.log("[404 gyro] isMobile:", isMobile);
+    const gyroPermBtn = document.getElementById("gyroPermBtn");
+
     if (isMobile) {
       const doe = DeviceOrientationEvent as any;
       const needsPermission = typeof doe.requestPermission === "function";
-      console.log("[404 gyro] needsPermission (iOS):", needsPermission);
 
       if (needsPermission) {
-        document.addEventListener("touchstart", function reqPerm() {
-          console.log("[404 gyro] requesting iOS permission...");
-          doe.requestPermission().then((state: string) => {
-            console.log("[404 gyro] permission result:", state);
-            if (state === "granted") {
-              window.addEventListener("deviceorientation", handleOrientation, { passive: true });
-            }
-          }).catch((err: any) => {
-            console.error("[404 gyro] permission error:", err);
-          });
-          document.removeEventListener("touchstart", reqPerm);
-        }, { once: true });
+        // iOS: Check if already permitted by listening for events first
+        let gotEvent = false;
+        const testHandler = (e: DeviceOrientationEvent) => {
+          if (e.gamma != null || e.beta != null) {
+            gotEvent = true;
+            window.removeEventListener("deviceorientation", testHandler);
+            window.addEventListener("deviceorientation", handleOrientation, { passive: true });
+          }
+        };
+        window.addEventListener("deviceorientation", testHandler, { passive: true });
+
+        // If no event after 500ms, show permission button
+        setTimeout(() => {
+          if (!gotEvent && gyroPermBtn) {
+            window.removeEventListener("deviceorientation", testHandler);
+            gyroPermBtn.style.display = "flex";
+            gyroPermBtn.addEventListener("click", () => {
+              doe.requestPermission().then((state: string) => {
+                if (state === "granted") {
+                  window.addEventListener("deviceorientation", handleOrientation, { passive: true });
+                  gyroPermBtn.style.display = "none";
+                }
+              }).catch(() => {});
+            });
+          }
+        }, 500);
       } else {
-        console.log("[404 gyro] adding listener directly (non-iOS)");
         window.addEventListener("deviceorientation", handleOrientation, { passive: true });
       }
     }
