@@ -120,7 +120,6 @@ export default function swupFunc() {
     function tryInit() {
       attempts++;
 
-
       if (window.__PHOTO_DATA__ && window.__PHOTO_DATA__.length > 0) {
         if (webglInstance) {
           webglInstance.destroy();
@@ -129,7 +128,6 @@ export default function swupFunc() {
       } else if (attempts < maxAttempts) {
         setTimeout(tryInit, 50);
       } else {
-
       }
     }
 
@@ -145,10 +143,10 @@ export default function swupFunc() {
     initPhotoGallery();
     initWebGL(true); // swup遷移時はイントロをスキップ
     MenuFilter();
-   document.documentElement.classList.add('swup-load');
+    document.documentElement.classList.add("swup-load");
     // if ( document.documentElement.contains('swup-load')) {
     //    setTimeout(() => {
-    //   document.documentElement.classList.remove('swup-load');
+    //   document.documentElement.classList.remove('swup-load')
     // },500)
     // }
   });
@@ -160,15 +158,13 @@ export default function swupFunc() {
   updateTimeOverlay();
   initWebGL(false);
   // DOMContentLoadedを確認
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
       initPhotoGallery();
     });
   } else {
-
     initPhotoGallery();
-      document.documentElement.classList.add('swup-load');
+    document.documentElement.classList.add("swup-load");
     // if ( document.documentElement.contains('swup-load')) {
     //    setTimeout(() => {
     //   document.documentElement.classList.remove('swup-load');
