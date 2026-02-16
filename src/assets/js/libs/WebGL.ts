@@ -721,7 +721,7 @@ export class WebGL {
       return;
     }
 
-    // 直線と円の交点計算
+    // 直線と円の交点計
     const lineCircleIntersection = (px: number, py: number, lineAngle: number, radius: number) => {
       const dx = Math.cos(lineAngle);
       const dy = Math.sin(lineAngle);
