@@ -35,7 +35,7 @@ const formatDate = (dateString: string) => {
 const createdAt = formatDate(photo.createdAt);
 ---
 
-<Layout title={photo.title} description={`${photo.title} - Photoire`} image={photo.image.url}>
+<Layout title={photo.title} description={`${photo.title} - Photoire`} image={photo.image?.url}>
   <Menu />
   <!-- 背景用キャンバス（葉の影エフェクト） -->
   <canvas id="leaf-shadow-canvas"></canvas>
@@ -44,7 +44,7 @@ const createdAt = formatDate(photo.createdAt);
   <main class="photo-detail">
     <div class="photo-detail-wrapper">
       <div class="photo-detail-body">
-        <div class="photo-detail__image" id="bulge-container" data-image-url={photo.image.url}>
+        <div class="photo-detail__image" id="bulge-container" data-image-url={photo.image?.url}>
           <!-- WebGLでレンダリングされる -->
         </div>
       <div class="photo-detail-content">

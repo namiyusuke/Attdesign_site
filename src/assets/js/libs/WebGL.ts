@@ -502,8 +502,8 @@ export class WebGL {
       const deltaX = e.clientX - this.lastMousePos.x;
       const deltaY = e.clientY - this.lastMousePos.y;
 
-      this.velocity.x = deltaX * 0.002;
-      this.velocity.y = -deltaY * 0.002;
+      this.velocity.x = -deltaX * 0.002;
+      this.velocity.y = deltaY * 0.002;
 
       this.offset.x += this.velocity.x;
       this.offset.y += this.velocity.y;
@@ -544,8 +544,8 @@ export class WebGL {
       const deltaX = touch.clientX - this.lastMousePos.x;
       const deltaY = touch.clientY - this.lastMousePos.y;
 
-      this.velocity.x = deltaX * 0.002;
-      this.velocity.y = -deltaY * 0.002;
+      this.velocity.x = -deltaX * 0.005;
+      this.velocity.y = deltaY * 0.005;
 
       this.offset.x += this.velocity.x;
       this.offset.y += this.velocity.y;
