@@ -18,8 +18,8 @@ const photos = response.contents;
 
 <Layout title="Photoire" description="Photoire（フォトワール）は、くうみんが写真で残す日々の記録。毎日、1枚の写真に短いメモを添えて投稿しています。日付順や「街」「カフェ」「風景」「イベント」Viewで切り替え可能。気になるロゴや美術系イベントなど、デザイナー目線のフォトも掲載。 ">
   <Menu />
-  <main>
-    <div class="privacy-bg">
+  <main class="privacy-bg">
+    <div >
       <section class="privacy-wrapper">
         <div class="privacy-inline">
           <h2 class="privacy-title">Photoire サイトポリシー</h2>
@@ -60,7 +60,7 @@ const photos = response.contents;
   }
 @media (min-width:768px) {
     .privacy-wrapper{
-    padding-block: 145px;
+    padding-block: 100px;
     margin-inline: auto;
     max-width: calc(1200 / 1440 * 100vw);
     box-sizing: content-box;
@@ -75,6 +75,7 @@ const photos = response.contents;
 @media (min-width:768px) {
   .privacy-inline{
     padding: 80px;
+    padding-block :60px;
     background-color:#fff ;
     border-radius: 28px;
   }
@@ -86,13 +87,18 @@ const photos = response.contents;
 }
 @media (min-width:768px) {
   .privacy-title{
-    margin-bottom: 60px;
+    margin-bottom: 40px;
     font-size: 36px;
   }
 }
-  .privacy-item + .privacy-item{
-    margin-top:40px;
-  }
+.privacy-item + .privacy-item{
+  margin-top:40px;
+}
+@media (min-width:768px) {
+.privacy-item + .privacy-item{
+margin-top:30px;
+}
+    }
   .privacy-item-ttl{
     margin-bottom:1rem;
     font-size: 18px;
