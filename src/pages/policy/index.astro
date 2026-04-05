@@ -1,0 +1,122 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { client } from '../../lib/microcms';
+import framePc from "@assets/img/frame-pc.png";
+import frameSp from "@assets/img/frame-sp.png";
+import camera from "@assets/img/camera.svg";
+import cameraGiza from "@assets/img/camera-giza.svg";
+import Menu from "../../components/global/Menu.astro";
+// microCMSからphotoデータを取得
+const response = await client.getList({
+  endpoint: 'photo',
+  queries: { limit: 100, orders: '-date' },
+});
+
+const photos = response.contents;
+
+---
+
+<Layout title="Photoire" description="Photoire（フォトワール）は、くうみんが写真で残す日々の記録。毎日、1枚の写真に短いメモを添えて投稿しています。日付順や「街」「カフェ」「風景」「イベント」Viewで切り替え可能。気になるロゴや美術系イベントなど、デザイナー目線のフォトも掲載。 ">
+  <Menu />
+  <main>
+    <div class="privacy-bg">
+      <section class="privacy-wrapper">
+        <div class="privacy-inline">
+          <h2 class="privacy-title">Photoire サイトポリシー</h2>
+          <section class="privacy-item">
+            <h3 class="privacy-item-ttl">著作権について</h3>
+            <p class="privacy-item-text">本サイト「Photoire」に掲載されているすべての写真・テキストの著作権は、サイト運営者に帰属します。</p>
+            <p class="privacy-item-text"><strong>無断転載・無断複製・無断使用・商用利用を禁止します。 「未管理著作物裁定制度」に基づく利用申請についても、事前の許諾なき利用は認めておりません。</strong></p>
+            <p class="privacy-item-text">写真・テキストの使用を希望される場合は、必ず事前に下記連絡先までご連絡ください。</p>
+          </section>
+          <section class="privacy-item">
+            <h3 class="privacy-item-ttl">プライバシーポリシー</h3>
+            <p class="privacy-item-text">本サイトは、閲覧者の個人情報（氏名・メールアドレス等）を収集・取得しておりません。<br>
+アクセス状況の把握のため、Google Analytics を使用しています。Google Analytics はCookieを使用してデータを収集しますが、個人を特定する情報は含まれません。収集されるデータはGoogleのプライバシーポリシーに基づき管理されます。</p>
+          </section>
+          <section class="privacy-item">
+            <h3 class="privacy-item-ttl">免責事項</h3>
+            <p class="privacy-item-text">本サイトの内容は個人の記録・表現を目的としたものです。掲載情報の正確性・完全性を保証するものではありません。</p>
+          </section>
+          <section class="privacy-item">
+            <h3 class="privacy-item-ttl">お問い合わせ</h3>
+            <p class="privacy-item-text">
+              <a href="mailto:kumi_kaneko@attdesign.site">kumi_kaneko@attdesign.site</a>
+            </p>
+          </section>
+        </div>
+      </section>
+    </div>
+  </main>
+  </main>
+
+<style is:global>
+  .privacy-wrapper{
+    padding-block: 140px;
+    margin-inline: auto;
+    max-width: calc(1200 / 1440 * 100vw);
+    box-sizing: content-box;
+    padding-inline: 5vi;
+  }
+@media (min-width:768px) {
+    .privacy-wrapper{
+    padding-block: 145px;
+    margin-inline: auto;
+    max-width: calc(1200 / 1440 * 100vw);
+    box-sizing: content-box;
+    padding-inline: 5vi;
+  }
+}
+  .privacy-inline{
+    padding: 24px;
+    background-color:#fff ;
+    border-radius: 14px;
+  }
+@media (min-width:768px) {
+  .privacy-inline{
+    padding: 80px;
+    background-color:#fff ;
+    border-radius: 28px;
+  }
+}
+.privacy-title{
+  margin-bottom: 40px;
+  font-size: 22px;
+  font-family: var(--ff-jp2);
+}
+@media (min-width:768px) {
+  .privacy-title{
+    margin-bottom: 60px;
+    font-size: 36px;
+  }
+}
+  .privacy-item + .privacy-item{
+    margin-top:40px;
+  }
+  .privacy-item-ttl{
+    margin-bottom:1rem;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  @media (min-width:768px) {
+.privacy-item-ttl{
+    margin-bottom:1rem;
+    font-size: 20px;
+  }
+  }
+  .privacy-item-text{
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .privacy-item-text strong{
+    font-weight: 900;
+  }
+  .privacy-bg{
+    background-color: #EBEBEB;
+  }
+  .privacy-item-text a{
+  text-decoration: underline;
+  }
+</style>
+
+</Layout>

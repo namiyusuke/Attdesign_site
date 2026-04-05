@@ -55,6 +55,9 @@ const categories = categoryResponse.contents;
         <p class="menu-btn-contact">
           <a target="_blank" href="mailto:kumi_kaneko@attdesign.site">お問い合わせ</a>
         </p>
+        <p class="menu-btn-privacy">
+          <a target="_blank" href="/policy">サイトポリシー</a>
+        </p>
       </div>
     </div>
   </div>
@@ -97,9 +100,10 @@ const categories = categoryResponse.contents;
     }
     .menu-text-btn{
       display: flex;
-      column-gap: calc(24 / 16 * 1rem);
+      column-gap: calc(18 / 16 * 1rem);
       margin-top: min(calc(24 / 375 * 100cqw),24px);
       position: relative;
+      align-items: center;
       z-index: 10;
     }
      @media (min-width:768px) {
@@ -134,7 +138,8 @@ const categories = categoryResponse.contents;
     .menu-btn-x img{
       width: clamp(calc(10 / 16 * 1rem),calc(14 / 1440 * 100cqw),calc(14 / 16 * 1rem));
     }
-    .menu-btn-contact a{
+    .menu-btn-contact a,
+    .menu-btn-privacy a{
       padding-block:calc(10 / 16 * 1rem);
       padding-inline:calc(12 / 16 * 1rem);
       font-size: clamp((calc(10 / 16 * 1rem)), calc(14 / 1440 * 100cqw), calc(14 / 16 * 1rem));
@@ -275,7 +280,7 @@ const categories = categoryResponse.contents;
     }
     .menu-inner{
       padding-block:calc(80 / 16 * 1rem);
-      padding-inline:calc(40 / 16 * 1rem);
+      padding-inline:calc(20 / 16 * 1rem);
       font-weight: bold;
       height: 100%;
       display: flex;
@@ -286,7 +291,7 @@ const categories = categoryResponse.contents;
     }
     @media (min-width:768px) {
       .menu-inner{
-        padding:min(calc(80 / 1440 * 100cqw),80px);
+        padding:min(calc(66 / 1440 * 100cqw),66px);
       }
     }
     .menu-text-top{
