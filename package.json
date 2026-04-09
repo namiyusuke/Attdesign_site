@@ -9,6 +9,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/vercel": "^8",
     "astro": "^5.16.11",
     "microcms-js-sdk": "^3.2.0",
     "resend": "^6.10.0"
