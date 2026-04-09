@@ -67,6 +67,15 @@ import Layout from '../layouts/Layout.astro';
     <button type="submit" id="submit-button">
       送信する
     </button>
+
+    <div id="success-message" class="hidden">
+      <p>お問い合わせありがとうございます。メッセージが送信されました。</p>
+    </div>
+
+    <div id="error-message" class="hidden">
+      <p><span id="error-text"></span></p>
+      <ul id="error-list"></ul>
+    </div>
   </form>
 </div>
 
@@ -150,6 +159,37 @@ import Layout from '../layouts/Layout.astro';
     opacity: 0.5;
     cursor: not-allowed;
   }
+  .hidden {
+    display: none;
+  }
+
+  #success-message {
+    margin-top: var(--space-24);
+    padding: var(--space-16);
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    color: #166534;
+    font-family: var(--ff-jp);
+    font-size: var(--font-14);
+  }
+
+  #error-message {
+    margin-top: var(--space-24);
+    padding: var(--space-16);
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    color: #991b1b;
+    font-family: var(--ff-jp);
+    font-size: var(--font-14);
+  }
+
+  #error-list {
+    margin-top: var(--space-8);
+    padding-left: var(--space-16);
+  }
+
   .l-wrapper{
     padding-inline: 5vi;
     max-width: 900px;
