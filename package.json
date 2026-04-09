@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "astro": "^5.16.11",
-    "microcms-js-sdk": "^3.2.0"
+    "microcms-js-sdk": "^3.2.0",
+    "resend": "^6.10.0"
   },
   "devDependencies": {
     "@swup/head-plugin": "^2.3.1",

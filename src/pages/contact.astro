@@ -1,0 +1,222 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+---
+
+<Layout title="Photoire|日々の写真ログ" description="Photoire（フォトワール）は、くうみんが写真で残す日々の記録。毎日、1枚の写真に短いメモを添えて投稿しています。日付順や「街」「カフェ」「風景」「イベント」Viewで切り替え可能。気になるロゴや美術系イベントなど、デザイナー目線のフォトも掲載。">
+<div class="l-wrapper">
+  <form id="contact-form" class="contact-form">
+    <div class="form-group">
+      <label for="name">
+        お名前
+        <span class="required">*</span>
+      </label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        required
+        minlength="2"
+        placeholder="山田 太郎"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="email">
+        メールアドレス
+        <span class="required">*</span>
+      </label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        required
+        placeholder="example@email.com"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="subject">
+        件名
+        <span class="required">*</span>
+      </label>
+      <input
+        type="text"
+        id="subject"
+        name="subject"
+        required
+        minlength="3"
+        placeholder="お問い合わせの件名"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="message">
+        メッセージ
+        <span class="required">*</span>
+      </label>
+      <textarea
+        id="message"
+        name="message"
+        required
+        minlength="10"
+        placeholder="お問い合わせ内容をご記入ください"
+      ></textarea>
+    </div>
+
+    <button type="submit" id="submit-button">
+      送信する
+    </button>
+  </form>
+</div>
+
+ <style is:global>
+  .contact-form {
+    max-width: 560px;
+    width: 100%;
+    margin: var(--space-64) auto;
+    padding: 0 var(--space-24);
+  }
+
+  .form-group {
+    margin-bottom: var(--space-32);
+  }
+
+  .form-group label {
+    display: block;
+    font-family: var(--ff-jp);
+    font-size: var(--font-14);
+    font-weight: 500;
+    color: #222;
+    margin-bottom: var(--space-8);
+  }
+
+  .required {
+    color: #dc2626;
+    margin-left: 2px;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: var(--space-12) var(--space-16);
+    font-family: var(--ff-jp);
+    font-size: var(--font-16);
+    color: #202020;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .form-group input::placeholder,
+  .form-group textarea::placeholder {
+    color: #999;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--cl-blue);
+  }
+
+  .form-group textarea {
+    min-height: 180px;
+    resize: vertical;
+    line-height: var(--leading-base);
+  }
+
+  #submit-button {
+    display: block;
+    width: 100%;
+    padding: var(--space-16);
+    font-family: var(--ff-jp);
+    font-size: var(--font-16);
+    font-weight: 700;
+    color: #fff;
+    background: #202020;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+  }
+
+  #submit-button:hover {
+    opacity: 0.8;
+  }
+
+  #submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .l-wrapper{
+    padding-inline: 5vi;
+    max-width: 900px;
+    margin-inline: auto;
+    display: flex;
+    justify-content: center;
+    padding-top: 200px;
+  }
+  </style>
+  <script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
+  const successMessage = document.getElementById('success-message') as HTMLDivElement;
+  const errorMessage = document.getElementById('error-message') as HTMLDivElement;
+  const errorText = document.getElementById('error-text') as HTMLSpanElement;
+  const errorList = document.getElementById('error-list') as HTMLUListElement;
+
+  form.addEventListener('submit', async (e) => {
+    // デフォルトのフォーム送信を防ぐ
+    e.preventDefault();
+
+    // メッセージをリセット
+    successMessage.classList.add('hidden');
+    errorMessage.classList.add('hidden');
+
+    // ボタンを無効化してローディング表示
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<span class="spinner"></span>送信中...';
+
+    try {
+      // フォームデータをJSONに変換
+      const formData = new FormData(form);
+      const jsonData = Object.fromEntries(formData.entries());
+
+      // APIにPOSTリクエストを送信
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jsonData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // 成功時の処理
+        successMessage.classList.remove('hidden');
+        form.reset();
+      } else {
+        // バリデーションエラー時の処理
+        errorText.textContent = '入力内容に問題があります:';
+        errorList.innerHTML = result.errors
+          .map((err: string) => `<li>${err}</li>`)
+          .join('');
+        errorMessage.classList.remove('hidden');
+      }
+    } catch (error) {
+      // ネットワークエラーなどの処理
+      errorText.textContent = '送信中にエラーが発生しました。しばらく経ってから再度お試しください。';
+      errorList.innerHTML = '';
+      errorMessage.classList.remove('hidden');
+    } finally {
+      // ボタンを元に戻す
+      submitButton.disabled = false;
+      submitButton.innerHTML = '送信する';
+    }
+  });
+</script>
+</Layout>
