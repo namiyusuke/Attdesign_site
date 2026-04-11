@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import { client, type Photo, type Category } from '../../lib/microcms';
 import kumin from "@assets/img/kuu-icon.png"
 import Menu from "../../components/global/Menu.astro";
+export const prerender = true;
 export async function getStaticPaths() {
   const response = await client.getList<Photo>({
     endpoint: 'photo',
