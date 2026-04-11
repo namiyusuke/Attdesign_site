@@ -1,87 +1,131 @@
 ---
 import Layout from '../layouts/Layout.astro';
-
+import Menu from "../components/global/Menu.astro";
 ---
 
 <Layout title="Photoire|日々の写真ログ" description="Photoire（フォトワール）は、くうみんが写真で残す日々の記録。毎日、1枚の写真に短いメモを添えて投稿しています。日付順や「街」「カフェ」「風景」「イベント」Viewで切り替え可能。気になるロゴや美術系イベントなど、デザイナー目線のフォトも掲載。">
-<div class="l-wrapper">
-  <form id="contact-form" class="contact-form">
-    <div class="form-group">
-      <label for="name">
-        お名前
-        <span class="required">*</span>
-      </label>
-      <input
-        type="text"
-        id="name"
-        name="name"
-        required
-        minlength="2"
-        placeholder="山田 太郎"
-      />
+<Menu />
+<div class="contact-form-bg">
+  <div class="l-wrapper contact-body">
+    <div class="contact-body-inner">
+      <h1 class="contact-form-heading">
+        <span class="contact-form-heading--lg">Contact</span> <span class="contact-form-heading--sm">- お問い合わせ -</span>
+      </h1>
+      <p class="contact-form-intro">リード文 写真の使用に関するご相談や、サイトへのメッセージなど、お気軽にどうぞ。 内容を確認した上で、順次ご返信いたします。</p>
+      <div class="contact-form-wrapper">
+        <form id="contact-form" class="contact-form">
+          <div class="form-group" data-form="01">
+            <label for="name">
+              お名前
+              <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              minlength="2"
+              placeholder="並河 祐輔"
+              class="c-textfield"
+            />
+          </div>
+          <div class="form-group" data-form="01">
+            <label for="email">
+              メールアドレス
+              <span class="required">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              placeholder="example@email.com"
+              class="c-textfield"
+            />
+          </div>
+          <div class="form-group" data-form="01">
+            <label for="subject">
+              件名
+              <span class="required">*</span>
+            </label>
+            <select name="inquiry" id="inquiry" class="c-textfield">
+              <option value="" disabled selected >お問い合わせ内容を選択</option>
+              <option value="写真の使用">写真の使用</option>
+              <option value="サイトへの感想・メッセージ">サイトへの感想・メッセージ</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message">
+              お問い合わせの内容
+              <span class="required">*</span>
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              required
+              minlength="10"
+              placeholder="お問い合わせ内容をご記入ください"
+              class="c-textfield"
+            ></textarea>
+          </div>
+          <div class="c-textfield-button-wrap">
+            <button type="submit" id="submit-button" class="c-textfield-button">
+              送信
+            </button>
+          </div>
+          <div id="success-message" class="hidden">
+            <p>お問い合わせありがとうございます。メッセージが送信されました。</p>
+          </div>
+          <div id="error-message" class="hidden">
+            <p><span id="error-text"></span></p>
+            <ul id="error-list"></ul>
+          </div>
+        </form>
+      </div>
     </div>
-
-    <div class="form-group">
-      <label for="email">
-        メールアドレス
-        <span class="required">*</span>
-      </label>
-      <input
-        type="email"
-        id="email"
-        name="email"
-        required
-        placeholder="example@email.com"
-      />
-    </div>
-
-    <div class="form-group">
-      <label for="subject">
-        件名
-        <span class="required">*</span>
-      </label>
-      <input
-        type="text"
-        id="subject"
-        name="subject"
-        required
-        minlength="3"
-        placeholder="お問い合わせの件名"
-      />
-    </div>
-
-    <div class="form-group">
-      <label for="message">
-        メッセージ
-        <span class="required">*</span>
-      </label>
-      <textarea
-        id="message"
-        name="message"
-        required
-        minlength="10"
-        placeholder="お問い合わせ内容をご記入ください"
-      ></textarea>
-    </div>
-
-    <button type="submit" id="submit-button">
-      送信する
-    </button>
-
-    <div id="success-message" class="hidden">
-      <p>お問い合わせありがとうございます。メッセージが送信されました。</p>
-    </div>
-
-    <div id="error-message" class="hidden">
-      <p><span id="error-text"></span></p>
-      <ul id="error-list"></ul>
-    </div>
-  </form>
+  </div>
 </div>
 
  <style is:global>
+  .contact-body-inner{
+    width: 100%;
+  }
+  .contact-body{
+    background-color: #fff;
+  }
+  .contact-form-bg{
+    background-color: #EBEBEB;
+  }
+  .c-textfield-button-wrap{
+    margin-top: 60px;
+  }
+  [data-form="01"]{
+    max-width: 320px;
+  }
+ .form-group .c-textfield{
+    border: none;
+    background-color: #EBEBEB;
+    padding-inline: 20px;
+    padding-block: 16px;
+    width: 100%;
+  }
+  .contact-form-wrapper{
+    margin-inline: auto;
+    display: flex;
+    justify-content: center;
+  }
+@media (min-width:768px) {
+    .contact-form-wrapper{
+    width:calc(970 / 1200 * 100%) ;
+    margin-inline: auto;
+    display: flex;
+    justify-content: center;
+  }
+}
   .contact-form {
-    max-width: 560px;
+    max-width: 600px;
+    margin-inline: auto;
     width: 100%;
     margin: var(--space-64) auto;
     padding: 0 var(--space-24);
@@ -101,7 +145,6 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .required {
-    color: #dc2626;
     margin-left: 2px;
   }
 
@@ -113,8 +156,6 @@ import Layout from '../layouts/Layout.astro';
     font-size: var(--font-16);
     color: #202020;
     background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
     transition: border-color 0.3s ease;
     box-sizing: border-box;
   }
@@ -139,16 +180,21 @@ import Layout from '../layouts/Layout.astro';
   #submit-button {
     display: block;
     width: 100%;
-    padding: var(--space-16);
     font-family: var(--ff-jp);
-    font-size: var(--font-16);
-    font-weight: 700;
+    font-size: 14;
+    font-weight: 400;
     color: #fff;
     background: #202020;
     border: none;
-    border-radius: 8px;
     cursor: pointer;
     transition: opacity 0.3s ease;
+    padding-block: 12px;
+    padding-inline: 16px;
+    max-width: 70px;
+    margin-inline: auto;
+    display: flex;
+    justify-content: center;
+    line-height: 1;
   }
 
   #submit-button:hover {
@@ -192,11 +238,81 @@ import Layout from '../layouts/Layout.astro';
 
   .l-wrapper{
     padding-inline: 5vi;
-    max-width: 900px;
+    max-width: 1200px;
+    width: calc(1200 / 1440 * 100vw);
     margin-inline: auto;
     display: flex;
     justify-content: center;
-    padding-top: 200px;
+    padding-block: 40px;
+  }
+  @media (min-width:768px) {
+  .l-wrapper{
+    padding-block: 80px;
+  }
+}
+.contact-form-bg{
+    padding-block: 70px;
+}
+@media (min-width:768px) {
+  .contact-form-bg{
+    padding-block: 140px;
+  }
+}
+  .contact-body{
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  @media (min-width:768px) {
+     .contact-body{
+    border-radius: 28px;
+  }
+  }
+  .form-group + .form-group{
+    margin-top: 40px;
+  }
+  .form-group label{
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .contact-form-heading{
+    display: flex;
+    flex-direction: column;
+    column-gap: 25px;
+    font-weight: 400;
+    font-family: var(--ff-jp2);
+    margin-bottom: 40px;
+    margin-top: 0;
+  }
+   @media (min-width:768px) {
+      .contact-form-heading{
+      display: flex;
+      flex-direction: row;
+      column-gap: 25px;
+      align-items: center;
+      font-weight: 400;
+      font-family: var(--ff-jp2);
+      margin-bottom: 40px;
+      margin-top: 0;
+    }
+   }
+  .contact-form-intro{
+    margin-bottom: 40px;
+  }
+  @media (min-width:768px) {
+  .contact-form-intro{
+     margin-bottom: 80px;
+  }
+}
+  .contact-form-heading--lg{
+    font-size: 28px;
+  }
+    @media (min-width:768px) {
+      .contact-form-heading--lg{
+    font-size: 36px;
+  }
+    }
+  .contact-form-heading--sm{
+    font-size: 20px;
   }
   </style>
   <script>
