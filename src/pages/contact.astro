@@ -50,7 +50,6 @@ import Menu from "../components/global/Menu.astro";
             </label>
             <select name="subject" id="subject" required class="c-textfield">
               <option value="" disabled selected >お問い合わせ内容を選択</option>
-              <option value="写真の使用">写真の使用</option>
               <option value="サイトへの感想・メッセージ">サイトへの感想・メッセージ</option>
               <option value="その他">その他</option>
             </select>
@@ -74,9 +73,6 @@ import Menu from "../components/global/Menu.astro";
               送信
             </button>
           </div>
-          <div id="success-message" class="hidden">
-            <p>お問い合わせありがとうございます。メッセージが送信されました。</p>
-          </div>
           <div id="error-message" class="hidden">
             <p><span id="error-text"></span></p>
             <ul id="error-list"></ul>
@@ -87,7 +83,68 @@ import Menu from "../components/global/Menu.astro";
   </div>
 </div>
 
+<!-- 送信完了モーダル -->
+<div class="contact-modal-overlay hidden" id="success-message">
+  <div class="contact-modal">
+    <p class="contact-modal__text">お問い合わせありがとうございます。<br>メッセージが送信されました。</p>
+    <button type="button" class="contact-modal__close" id="modal-close-button">閉じる</button>
+  </div>
+</div>
+
  <style is:global>
+  /* モーダルオーバーレイ */
+  .contact-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .contact-modal-overlay.is-active{
+    opacity: 1;
+    visibility: visible;
+  }
+  .contact-modal {
+    background: #fff;
+    border-radius: 16px;
+    padding: 48px 32px 36px;
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+  }
+  .contact-modal-overlay .is-active.contact-modal {
+    transform: translateY(0);
+  }
+  .contact-modal__text {
+    font-family: var(--ff-jp);
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #222;
+    margin: 0 0 2.5rem;
+  }
+  .contact-modal__close {
+    display: inline-block;
+    font-family: var(--ff-jp);
+    font-size: 14px;
+    font-weight: 400;
+    color: #fff;
+    background: #202020;
+    border: none;
+    cursor: pointer;
+    padding: 10px 32px;
+    line-height: 1;
+    transition: opacity 0.3s ease;
+  }
+  .contact-modal__close:hover {
+    opacity: 0.8;
+  }
   .contact-body-inner{
     width: 100%;
   }
@@ -190,7 +247,7 @@ import Menu from "../components/global/Menu.astro";
     transition: opacity 0.3s ease;
     padding-block: 12px;
     padding-inline: 16px;
-    max-width: 70px;
+    width: max-content;
     margin-inline: auto;
     display: flex;
     justify-content: center;
@@ -207,17 +264,6 @@ import Menu from "../components/global/Menu.astro";
   }
   .hidden {
     display: none;
-  }
-
-  #success-message {
-    margin-top: var(--space-24);
-    padding: var(--space-16);
-    background: #f0fdf4;
-    border: 1px solid #86efac;
-    border-radius: 8px;
-    color: #166534;
-    font-family: var(--ff-jp);
-    font-size: var(--font-14);
   }
 
   #error-message {
@@ -263,9 +309,9 @@ import Menu from "../components/global/Menu.astro";
     overflow: hidden;
   }
   @media (min-width:768px) {
-     .contact-body{
-    border-radius: 28px;
-  }
+    .contact-body{
+      border-radius: 28px;
+    }
   }
   .form-group + .form-group{
     margin-top: 40px;
@@ -315,64 +361,4 @@ import Menu from "../components/global/Menu.astro";
     font-size: 20px;
   }
   </style>
-  <script>
-  const form = document.getElementById('contact-form') as HTMLFormElement;
-  const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
-  const successMessage = document.getElementById('success-message') as HTMLDivElement;
-  const errorMessage = document.getElementById('error-message') as HTMLDivElement;
-  const errorText = document.getElementById('error-text') as HTMLSpanElement;
-  const errorList = document.getElementById('error-list') as HTMLUListElement;
-
-  form.addEventListener('submit', async (e) => {
-    // デフォルトのフォーム送信を防ぐ
-    e.preventDefault();
-
-    // メッセージをリセット
-    successMessage.classList.add('hidden');
-    errorMessage.classList.add('hidden');
-
-    // ボタンを無効化してローディング表示
-    submitButton.disabled = true;
-    submitButton.innerHTML = '<span class="spinner"></span>送信中...';
-
-    try {
-      // フォームデータをJSONに変換
-      const formData = new FormData(form);
-      const jsonData = Object.fromEntries(formData.entries());
-
-      // APIにPOSTリクエストを送信
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(jsonData),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        // 成功時の処理
-        successMessage.classList.remove('hidden');
-        form.reset();
-      } else {
-        // バリデーションエラー時の処理
-        errorText.textContent = '入力内容に問題があります:';
-        errorList.innerHTML = result.errors
-          .map((err: string) => `<li>${err}</li>`)
-          .join('');
-        errorMessage.classList.remove('hidden');
-      }
-    } catch (error) {
-      // ネットワークエラーなどの処理
-      errorText.textContent = '送信中にエラーが発生しました。しばらく経ってから再度お試しください。';
-      errorList.innerHTML = '';
-      errorMessage.classList.remove('hidden');
-    } finally {
-      // ボタンを元に戻す
-      submitButton.disabled = false;
-      submitButton.innerHTML = '送信する';
-    }
-  });
-</script>
 </Layout>

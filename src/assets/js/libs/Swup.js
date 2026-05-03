@@ -8,6 +8,7 @@ import { initMenuController } from "./MenuController";
 import { initPhotoGallery } from "./PhotoGallery";
 import { MenuFilter } from "./MenuFilter";
 import { WebGL } from "./WebGL";
+import { initContactForm } from "./ContactForm";
 // グローバルにインスタンスを保持
 let bulgeInstance = null;
 let leafShadowInstance = null;
@@ -143,6 +144,7 @@ export default function swupFunc() {
     initPhotoGallery();
     initWebGL(true); // swup遷移時はイントロをスキップ
     MenuFilter();
+    initContactForm();
     document.documentElement.classList.add("swup-load");
     // if ( document.documentElement.contains('swup-load')) {
     //    setTimeout(() => {
@@ -154,6 +156,7 @@ export default function swupFunc() {
   // 初回ロード時もチェック
   initBulgeImage();
   MenuFilter();
+  initContactForm();
   initLeafShadow();
   updateTimeOverlay();
   initWebGL(false);
