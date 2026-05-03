@@ -4,7 +4,7 @@ import { Resend } from "resend";
 // SSRモードを有効化（静的生成を無効化）
 export const prerender = false;
 
-// フォームデータの型定義
+// フォームデータの型定
 interface ContactFormData {
   name: string;
   email: string;
