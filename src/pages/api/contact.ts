@@ -114,6 +114,34 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    // 自動返信メール送信
+    const { error: autoReplyError } = await resend.emails.send({
+      from: import.meta.env.CONTACT_FROM_EMAIL || "onboarding@resend.dev",
+      to: data.email,
+      subject: `【自動返信】お問い合わせを受け付けました`,
+      html: `
+        <p>${escapeHtml(data.name)} 様</p>
+        <p>この度はお問い合わせいただき、誠にありがとうございます。<br>以下の内容でお問い合わせを受け付けました。</p>
+        <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
+          <tr>
+            <th style="border: 1px solid #ddd; padding: 12px; background: #f5f5f5; text-align: left;">件名</th>
+            <td style="border: 1px solid #ddd; padding: 12px;">${escapeHtml(data.subject)}</td>
+          </tr>
+          <tr>
+            <th style="border: 1px solid #ddd; padding: 12px; background: #f5f5f5; text-align: left;">メッセージ</th>
+            <td style="border: 1px solid #ddd; padding: 12px; white-space: pre-wrap;">${escapeHtml(data.message)}</td>
+          </tr>
+        </table>
+        <p style="margin-top: 24px;">内容を確認の上、順次ご返信いたします。<br>しばらくお待ちくださいませ。</p>
+        <hr style="margin-top: 32px; border: none; border-top: 1px solid #ddd;">
+        <p style="font-size: 12px; color: #999;">※このメールは自動送信されています。このメールへの返信はできません。</p>
+      `,
+    });
+
+    if (autoReplyError) {
+      console.error("Auto-reply error:", autoReplyError);
+    }
+
     return new Response(JSON.stringify({ success: true, message: "お問い合わせを送信しました" }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
