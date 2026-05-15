@@ -1,5 +1,5 @@
 ---
-import { client,type Category  } from '../../lib/microcms';
+import { getAllContents, type Category  } from '../../lib/microcms';
 import kumin from "@assets/img/kuu-icon.png";
 import frame from "@assets/img/photo-frame.png";
 import frameSp from "@assets/img/photo-frame-sp.png";
@@ -9,13 +9,8 @@ import menuBack from "@assets/img/menuBack.png";
 import menuBack2 from "@assets/img/menuBack2.png";
 import menuBack3 from "@assets/img/menuBack3.png";
 import menuBack4 from "@assets/img/menuBack4.png";
-// microCMSからcategoryデータを取得
-const categoryResponse = await client.getList<Category>({
-  endpoint: 'category',
-  queries: { limit: 100 },
-});
-
-const categories = categoryResponse.contents;
+// microCMSからcategoryデータを全件取得
+const categories = await getAllContents<Category>('category');
 
 
 ---

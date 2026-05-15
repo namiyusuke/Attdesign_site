@@ -1,26 +1,18 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { client, type Photo, type Category } from '../../lib/microcms';
+import { client, getAllContents, type Photo, type Category } from '../../lib/microcms';
 import kumin from "@assets/img/kuu-icon.png"
 import Menu from "../../components/global/Menu.astro";
 export const prerender = true;
 export async function getStaticPaths() {
-  const response = await client.getList<Photo>({
-    endpoint: 'photo',
-    queries: { limit: 100 }, // 全件取得（必要に応じて増やす）
-  });
-  return response.contents.map((photo) => ({
+  const photos = await getAllContents<Photo>('photo');
+  return photos.map((photo) => ({
     params: { photoId: photo.id },
     props: { photo },
   }));
 }
 // microCMSからcategoryデータを取得
-const categoryResponse = await client.getList<Category>({
-  endpoint: 'category',
-  queries: { limit: 100 },
-});
-
-const categories = categoryResponse.contents;
+const categories = await getAllContents<Category>('category');
 
 const { photo } = Astro.props;
 

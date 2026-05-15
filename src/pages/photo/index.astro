@@ -1,18 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { client } from '../../lib/microcms';
+import { getAllContents } from '../../lib/microcms';
 import framePc from "@assets/img/frame-pc.png";
 import frameSp from "@assets/img/frame-sp.png";
 import camera from "@assets/img/camera.svg";
 import cameraGiza from "@assets/img/camera-giza.svg";
 import Menu from "../../components/global/Menu.astro";
-// microCMSからphotoデータを取得
-const response = await client.getList({
-  endpoint: 'photo',
-  queries: { limit: 100, orders: '-date' },
-});
-
-const photos = response.contents;
+// microCMSからphotoデータを全件取得
+const photos = await getAllContents('photo', { orders: '-date' });
 
 ---
 
