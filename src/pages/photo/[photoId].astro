@@ -61,7 +61,7 @@ const createdAt = formatDate(photo.createdAt);
         }
         {photo.category?.data && <p class="photo-category">{photo.category.data}</p>}
         <p class="back-btn">
-          <a href="/photo/">
+          <a href={`/photo/#photo-${photo.id}`}>
             一覧へ戻る
           </a>
         </p>
