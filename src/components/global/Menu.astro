@@ -382,7 +382,8 @@ const categories = await getAllContents<Category>('category');
       .menu-filter-inner li {
         line-height: 1;
       }
-    .menu-filter-inner li +li{
+    .menu-filter-inner li +li,.menu-filter-year
+    {
       margin-top: calc(24 / 16 * 1rem);
     }
     a.current{
