@@ -48,6 +48,9 @@ const categories = await getAllContents<Category>('category');
           </a>
         </p>
         <p class="menu-btn-contact">
+          <a target="_blank" href="https://attdesign.base.shop/">ZINEはこちら</a>
+        </p>
+        <p class="menu-btn-contact">
           <a target="_blank" href="/contact">お問い合わせ</a>
         </p>
         <p class="menu-btn-privacy">
@@ -67,13 +70,6 @@ const categories = await getAllContents<Category>('category');
           </li>
         ))}
         <li> <a href={`/photo/`}>daily</a></li>
-      </ul>
-      <ul class="menu-filter-year">
-        <li>
-          <a href="#">
-            2026
-          </a>
-        </li>
       </ul>
     </div>
   </div>
@@ -102,16 +98,20 @@ const categories = await getAllContents<Category>('category');
     }
     .menu-text-btn{
       display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       column-gap: calc(18 / 16 * 1rem);
       margin-top: min(calc(24 / 375 * 100cqw),24px);
       position: relative;
       align-items: center;
       z-index: 10;
+      row-gap: 1rem;
     }
      @media (min-width:768px) {
       .menu-text-btn{
         display: flex;
         column-gap: calc(24 / 16 * 1rem);
+        row-gap: 1rem;
         margin-top: min(calc(24 / 1440 * 100cqw),24px);
         position: relative;
         z-index: 10;
